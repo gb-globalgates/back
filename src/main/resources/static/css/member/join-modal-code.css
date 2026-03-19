@@ -1,4 +1,4 @@
-button {
+﻿button {
     text-align: inherit;
     font-size: inherit;
     font-family: inherit;
@@ -192,8 +192,7 @@ button {
 }
 
 .join-modal-all {
-    background-color: rgba(0, 0, 0, 0.4);
-    right: 0px;
+        right: 0px;
     top: 0px;
     position: fixed;
     bottom: 0px;
@@ -1674,7 +1673,7 @@ button {
 }
 
 
-/* join-modal-code 입력 글자 겹침 방지 및 버튼 상태 보정 */
+/* join-modal-code ?낅젰 湲??寃뱀묠 諛⑹? 諛?踰꾪듉 ?곹깭 蹂댁젙 */
 .phone-placeholder-in3 {
     margin-top: 16px !important;
 }
@@ -1697,9 +1696,10 @@ button {
     background-color: rgb(15, 20, 25);
 }
 
-/* join-modal-code: 이메일을 받지 못했나요? 포인터 */
+/* join-modal-code: ?대찓?쇱쓣 諛쏆? 紐삵뻽?섏슂? ?ъ씤??*/
 .change,
 .replace-email,
 .replace-phone {
     cursor: pointer !important;
 }
+

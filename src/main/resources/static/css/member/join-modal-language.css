@@ -13,7 +13,7 @@
 body {
     margin: 0;
     color: var(--text-main);
-    background: #eef3f7;
+    background: transparent;
     font-family: "Pretendard Variable", "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -46,7 +46,7 @@ body {
 .join-modal-all {
     position: fixed;
     inset: 0;
-    background: rgba(27, 39, 50, 0.45);
+    background: transparent;
 }
 
 .join-modal-box1 {
@@ -252,3 +252,4 @@ body {
         font-size: 17px;
     }
 }
+

@@ -192,8 +192,7 @@
 }
 
 .join-modal-all {
-    background-color: rgba(0, 0, 0, 0.4);
-    right: 0px;
+        right: 0px;
     top: 0px;
     position: fixed;
     bottom: 0px;
@@ -1677,5 +1676,6 @@
     color: rgb(29, 155, 240);
     font-size: 12px;
 }
+
 
 

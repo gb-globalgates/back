@@ -36,8 +36,7 @@ body {
 .join-modal-all {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-}
+    }
 
 .join-modal-box1 {
     position: relative;
@@ -220,3 +219,4 @@ body {
         font-size: 15px;
     }
 }
+

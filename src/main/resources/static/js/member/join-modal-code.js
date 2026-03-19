@@ -4,6 +4,7 @@
     const field = document.querySelector(".phone-placeholder");
     const labelText = document.querySelector(".phone-text");
     const nextButton = document.querySelector(".next-button");
+    const resendButton = document.querySelector(".change");
 
     if (!wrap || !input || !field || !labelText || !nextButton) return;
 
@@ -66,6 +67,24 @@
         }
         syncNextButton();
     });
+
+    if (resendButton) {
+        let resendMessage = document.querySelector(".resend-message");
+        if (!resendMessage) {
+            resendMessage = document.createElement("div");
+            resendMessage.className = "resend-message";
+            resendMessage.style.display = "none";
+            resendMessage.style.color = "rgb(29, 155, 240)";
+            resendMessage.style.fontSize = "14px";
+            resendMessage.style.marginTop = "8px";
+            resendMessage.textContent = "다시 보냈습니다";
+            wrap.insertAdjacentElement("afterend", resendMessage);
+        }
+
+        resendButton.addEventListener("click", () => {
+            resendMessage.style.display = "block";
+        });
+    }
 
     const closeButton = document.querySelector(".join-modal-header-close-button, .join-modal-close");
     const modalRoot = document.querySelector(".join-modal, .join-modal-overlay");

@@ -20,16 +20,15 @@ body {
 .login-overlay {
     position: fixed;
     inset: 0;
-    background: var(--overlay);
     display: grid;
     place-items: center;
     padding: 16px;
 }
 
 .login-modal {
-    width: min(900px, 96vw);
-    min-height: min(920px, 94vh);
-    border-radius: 28px;
+    width: min(760px, 92vw);
+    min-height: min(760px, 92vh);
+    border-radius: 18px;
     background: var(--card);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
     position: relative;
@@ -234,3 +233,7 @@ body {
     color: #0a84ff;
     font-size: 22px;
 }
+
+
+
+

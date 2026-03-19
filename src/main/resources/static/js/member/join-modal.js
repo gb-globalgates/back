@@ -208,9 +208,39 @@
 
     // birth-date-input 8자 제한(숫자만)
     const birthInput = document.querySelector(".birth-date-input");
+    const birthHost = document.querySelector(".birth-date");
+    const birthState = birthInput ? states.get(birthInput) : null;
     if (birthInput) {
         birthInput.addEventListener("input", () => {
             birthInput.value = birthInput.value.replace(/\D/g, "").slice(0, 8);
+            if (birthInput.value.trim().length === 8 && birthState?.errorNode) {
+                birthState.errorNode.classList.remove("show");
+                setBlue(birthInput);
+            }
         });
+    }
+
+    if (nextButton && birthInput) {
+        nextButton.addEventListener(
+            "click",
+            (event) => {
+                const birth = birthInput.value.trim();
+                if (birth.length !== 8) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    setRed(birthInput);
+                    if (birthState?.errorNode) {
+                        birthState.errorNode.textContent = "8자 이상으로 입력하세요";
+                        birthState.errorNode.classList.add("show");
+                    } else if (birthHost) {
+                        const errorNode = ensureErrorNode(birthHost);
+                        errorNode.textContent = "8자 이상으로 입력하세요";
+                        errorNode.classList.add("show");
+                    }
+                    birthInput.focus();
+                }
+            },
+            true
+        );
     }
 });

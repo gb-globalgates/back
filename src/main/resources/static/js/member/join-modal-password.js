@@ -1,7 +1,10 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
     const wraps = document.querySelectorAll(".name-placeholder-wrap, .phone-number-placeholder");
     const passwordInput = document.querySelector(".phone-input");
+    const passwordWrap = document.querySelector(".phone-number-placeholder");
+    const passwordBox = document.querySelector(".phone-placeholder");
     const nextButton = document.querySelector(".next-button");
+    const lengthErrorNode = ensureLengthErrorNode(passwordWrap);
 
     wraps.forEach((wrap) => {
         const input = wrap.querySelector("input");
@@ -24,6 +27,11 @@
 
         input.addEventListener("input", () => {
             shrink(labelText);
+
+            if (input === passwordInput && lengthErrorNode && input.value.trim().length >= 8) {
+                lengthErrorNode.classList.remove("show");
+            }
+
             updateJoinButtonState(passwordInput, nextButton);
         });
 
@@ -39,6 +47,31 @@
         });
     });
 
+    if (nextButton && passwordInput) {
+        nextButton.addEventListener(
+            "click",
+            (event) => {
+                const password = passwordInput.value.trim();
+                if (password.length < 8) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    if (lengthErrorNode) {
+                        lengthErrorNode.textContent = "8자 이상으로 입력하세요";
+                        lengthErrorNode.classList.add("show");
+                    }
+                    setErrorBorder(passwordBox);
+                    passwordInput.focus();
+                    return;
+                }
+
+                if (lengthErrorNode) {
+                    lengthErrorNode.classList.remove("show");
+                }
+            },
+            true
+        );
+    }
+
     bindPasswordToggle();
     bindJoinModalClose();
     updateJoinButtonState(passwordInput, nextButton);
@@ -52,6 +85,24 @@ function updateJoinButtonState(input, button) {
     button.style.backgroundColor = "rgb(15, 20, 25)";
     button.style.opacity = hasValue ? "1" : "0.5";
     button.style.cursor = hasValue ? "pointer" : "default";
+}
+
+function ensureLengthErrorNode(host) {
+    if (!host) return null;
+    let node = host.querySelector(".field-error-message");
+    if (!node) {
+        node = document.createElement("div");
+        node.className = "field-error-message";
+        host.appendChild(node);
+    }
+    return node;
+}
+
+function setErrorBorder(box) {
+    if (!box) return;
+    box.style.borderColor = "rgb(244, 33, 46)";
+    box.style.borderWidth = "2px";
+    box.style.boxShadow = "0 0 0 2px rgba(244, 33, 46, 0.18)";
 }
 
 function bindPasswordToggle() {

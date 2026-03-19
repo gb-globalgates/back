@@ -1,4 +1,4 @@
-button {
+﻿button {
     text-align: inherit;
     font-size: inherit;
     font-family: inherit;
@@ -192,8 +192,7 @@ button {
 }
 
 .join-modal-all {
-    background-color: rgba(0, 0, 0, 0.4);
-    right: 0px;
+        right: 0px;
     top: 0px;
     position: fixed;
     bottom: 0px;
@@ -1878,7 +1877,8 @@ button {
 }
 
 
-/* join-modal-user-name: 다음 버튼 포인터 */
+/* join-modal-user-name: ?ㅼ쓬 踰꾪듉 ?ъ씤??*/
 .next-button {
     cursor: pointer !important;
 }
+

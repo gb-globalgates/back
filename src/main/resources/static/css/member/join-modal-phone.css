@@ -6,7 +6,6 @@
 
 body {
   font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #6b7280;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,7 +15,7 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;

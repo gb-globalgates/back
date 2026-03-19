@@ -1,160 +1,93 @@
-﻿const btn = document.getElementById("addr-search-btn");
-if (btn) {
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
+﻿document.addEventListener('DOMContentLoaded', () => {
+  const nextButton = document.querySelector('.next-button');
+  const inputs = Array.from(document.querySelectorAll('.name-input, .phone-input'));
 
-    let isOpen = false;
+  if (!nextButton || inputs.length === 0) return;
 
-    newBtn.addEventListener("click", () => {
-        if (isOpen) return;
-        isOpen = true;
+  const searchButton = document.getElementById('addr-search-btn');
+  if (searchButton) {
+    searchButton.style.display = 'none';
+  }
 
-        new daum.Postcode({
-            oncomplete: function (data) {
-                const fullAddr = data.roadAddress || data.jibunAddress;
-                setReadonlyValue("postcode", data.zonecode);
-                setReadonlyValue("addr-main", fullAddr);
-                document.getElementById("addr-detail").focus();
-                isOpen = false;
-            },
-            onclose: function () {
-                isOpen = false;
-            },
-        }).open();
-    });
-}
-document.getElementById("addr-search-btn").addEventListener("click", () => {
-    new daum.Postcode({
-        oncomplete: function (data) {
-            const fullAddr = data.roadAddress || data.jibunAddress;
-            document.getElementById("postcode").value = data.zonecode;
-            document.getElementById("addr-main").value = fullAddr;
-            document.getElementById("addr-detail").focus();
-        },
-    }).open();
-});
+  const textOverrides = {
+    postcode: '국가 또는 리전',
+    'addr-main': '주소 라인 1',
+    'addr-detail': '주소 라인 2',
+  };
 
-document.addEventListener("DOMContentLoaded", () => {
-    const fields = document.querySelectorAll(
-        ".name-placeholder-wrap, .phone-number-placeholder",
-    );
+  Object.entries(textOverrides).forEach(([id, text]) => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    input.readOnly = false;
+    const label = input.closest('.name-placeholder, .phone-placeholder');
+    const labelText = label?.querySelector('.name-text-in, .phone-text-in');
+    if (labelText) labelText.textContent = text;
+  });
 
-    fields.forEach((wrap) => {
-        const input = wrap.querySelector("input");
-        const label = wrap.querySelector(
-            ".name-placeholder, .phone-placeholder",
-        );
-        const labelText = wrap.querySelector(".name-text, .phone-text");
+  const shrink = (label) => {
+    if (!label) return;
+    label.style.fontSize = '12px';
+    label.style.paddingTop = '8px';
+    label.style.color = 'rgb(29, 155, 240)';
+  };
 
-        if (!input || !label) return;
+  const expand = (label) => {
+    if (!label) return;
+    label.style.fontSize = '17px';
+    label.style.paddingTop = '16px';
+    label.style.color = 'rgb(83, 100, 113)';
+  };
 
-        // ?먮윭 硫붿떆吏 ?붿냼 ?앹꽦
-        const errorMsg = document.createElement("span");
-        errorMsg.textContent = "?ㅼ떆 ?낅젰?섏꽭??;
-        errorMsg.style.cssText = `
-            display: none;
-            color: rgb(244, 33, 46);
-            font-size: 12px;
-            font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin-top: 4px;
-            padding-left: 8px;
-        `;
-        wrap.appendChild(errorMsg);
+  const setFocus = (box) => {
+    if (!box) return;
+    box.style.borderColor = 'rgb(29, 155, 240)';
+    box.style.borderWidth = '2px';
+  };
 
-        // 珥덇린 ?곹깭 - ?대? 媛??덉쑝硫??쇰꺼 ?묎쾶
-        if (input.value.trim() !== "") {
-            shrink(labelText);
-        }
+  const setNeutral = (box) => {
+    if (!box) return;
+    box.style.borderColor = 'rgb(207, 217, 222)';
+    box.style.borderWidth = '1px';
+  };
 
-        // ?ъ빱??- ?뚮? ?뚮몢由?+ ?쇰꺼 ?묎쾶
-        input.addEventListener("focus", () => {
-            label.style.borderColor = "rgb(29, 155, 240)";
-            label.style.borderWidth = "2px";
-            shrink(labelText);
-        });
+  const syncNextButton = () => {
+    const allFilled = inputs.every((input) => input.value.trim().length > 0);
+    nextButton.disabled = !allFilled;
+    nextButton.style.backgroundColor = 'rgb(15, 20, 25)';
+    nextButton.style.opacity = allFilled ? '1' : '0.5';
+    nextButton.style.cursor = allFilled ? 'pointer' : 'default';
+  };
 
-        // ?낅젰 以?- 媛??덉쑝硫??먮윭 ?④?, ?놁쑝硫??먮윭 ?쒖떆
-        input.addEventListener("input", () => {
-            if (input.value.trim() !== "") {
-                errorMsg.style.display = "none";
-            } else {
-                errorMsg.style.display = "block";
-            }
-        });
+  inputs.forEach((input) => {
+    const labelBox = input.closest('.name-placeholder, .phone-placeholder');
+    const labelText = labelBox?.querySelector('.name-text, .phone-text');
 
-        // 釉붾윭 - ?뚮? ?뚮몢由??쒓굅 + ?먮윭 臾댁“嫄??④?
-        input.addEventListener("blur", () => {
-            label.style.borderColor = "rgb(207, 217, 222)";
-            label.style.borderWidth = "1px";
-            errorMsg.style.display = "none";
-
-            if (input.value.trim() === "" && !input.readOnly) {
-                expand(labelText);
-            }
-        });
-    });
-
-    // 二쇱냼 ?먮룞 ?낅젰 ???쇰꺼 泥섎━
-    document
-        .getElementById("addr-search-btn")
-        ?.addEventListener("click", () => {
-            new daum.Postcode({
-                oncomplete: function (data) {
-                    const fullAddr = data.roadAddress || data.jibunAddress;
-                    setReadonlyValue("postcode", data.zonecode);
-                    setReadonlyValue("addr-main", fullAddr);
-                    document.getElementById("addr-detail").focus();
-                },
-            }).open();
-        });
-
-    function setReadonlyValue(id, value) {
-        const input = document.getElementById(id);
-        if (!input) return;
-        input.value = value;
-
-        const wrap = input.closest(".phone-number-placeholder");
-        const labelText = wrap?.querySelector(".phone-text");
-        if (labelText) shrink(labelText);
-
-        const label = wrap?.querySelector(".phone-placeholder");
-        if (label) {
-            label.style.borderColor = "rgb(207, 217, 222)";
-            label.style.borderWidth = "1px";
-        }
+    if (input.value.trim().length > 0) {
+      shrink(labelText);
+    } else {
+      expand(labelText);
     }
-});
 
-function shrink(labelText) {
-    if (!labelText) return;
-    labelText.style.fontSize = "12px";
-    labelText.style.paddingTop = "8px";
-    labelText.style.color = "rgb(29, 155, 240)";
-}
-
-function expand(labelText) {
-    if (!labelText) return;
-    labelText.style.fontSize = "17px";
-    labelText.style.paddingTop = "16px";
-    labelText.style.color = "rgb(83, 100, 113)";
-}
-
-// 공통 X(닫기) 버튼 동작
-function bindJoinModalClose() {
-    const closeButtons = document.querySelectorAll(".join-modal-header-close-button, .join-modal-close");
-    if (!closeButtons.length) return;
-
-    closeButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const modal = document.querySelector(".join-modal");
-            const root = modal?.closest(".join-modal-line1") || document.querySelector(".join-modal-line1");
-            const overlay = document.querySelector(".join-modal-overlay") || document.querySelector(".join-modal-all");
-
-            if (modal) modal.style.display = "none";
-            if (root) root.style.display = "none";
-            if (overlay) overlay.style.display = "none";
-        });
+    input.addEventListener('focus', () => {
+      shrink(labelText);
+      setFocus(labelBox);
     });
-}
 
-document.addEventListener("DOMContentLoaded", bindJoinModalClose);
+    input.addEventListener('input', () => {
+      if (input.value.trim().length > 0) {
+        shrink(labelText);
+      }
+      syncNextButton();
+    });
+
+    input.addEventListener('blur', () => {
+      setNeutral(labelBox);
+      if (input.value.trim().length === 0) {
+        expand(labelText);
+      }
+      syncNextButton();
+    });
+  });
+
+  syncNextButton();
+});
