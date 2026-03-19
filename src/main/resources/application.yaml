@@ -7,8 +7,8 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/spring?serverTimezone=Asia/Seoul
-    username: spring
+    url: jdbc:postgresql://localhost:5432/globalgates?serverTimezone=Asia/Seoul
+    username: globalgates
     password: 1234
   session:
     redis:
@@ -35,8 +35,8 @@ spring:
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml
-  type-aliases-package: com.app.app.domain; com.app.app.dto;
-  type-handlers-package: com.app.app.mybatis.handler
+  type-aliases-package: com.app.globalgates.domain; com.app.globalgates.dto;
+  type-handlers-package: com.app.globalgates.mybatis.handler
   configuration:
     map-underscore-to-camel-case: true
 
