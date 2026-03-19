@@ -9,12 +9,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 class BookmarkServiceTest {
 
     @Autowired
@@ -26,13 +29,29 @@ class BookmarkServiceTest {
     @Autowired
     private BookmarkDAO bookmarkDAO;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private Long memberId;
     private Long postId;
 
     @BeforeEach
     void setUp() {
-        memberId = 1L;
-        postId = 1L;
+        jdbcTemplate.update(
+                "insert into tbl_member (member_email, member_password, member_nickname) values (?, ?, ?) on conflict (member_email) do nothing",
+                "service-test@test.com", "password123", "서비스테스트유저"
+        );
+        memberId = jdbcTemplate.queryForObject(
+                "select id from tbl_member where member_email = ?", Long.class, "service-test@test.com"
+        );
+
+        jdbcTemplate.update(
+                "insert into tbl_post (member_id, title, content) values (?, ?, ?)",
+                memberId, "서비스 테스트 게시글", "서비스 테스트 내용"
+        );
+        postId = jdbcTemplate.queryForObject(
+                "select id from tbl_post where member_id = ? order by id desc limit 1", Long.class, memberId
+        );
     }
 
     @Test

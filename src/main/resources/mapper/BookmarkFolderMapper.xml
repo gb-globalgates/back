@@ -33,4 +33,18 @@
         where bf.member_id = #{memberId}
         order by bf.created_datetime desc
     </select>
+
+    <select id="selectAllByMemberIdPaged">
+        select bf.id, bf.member_id, bf.folder_name, bf.created_datetime, bf.updated_datetime,
+               (select count(*) from tbl_bookmark b where b.folder_id = bf.id) as bookmarkCount
+        from tbl_bookmark_folder bf
+        where bf.member_id = #{memberId}
+        order by bf.created_datetime desc
+        limit #{size} offset #{offset}
+    </select>
+
+    <select id="selectCountByMemberId" resultType="int">
+        select count(*) from tbl_bookmark_folder
+        where member_id = #{memberId}
+    </select>
 </mapper>

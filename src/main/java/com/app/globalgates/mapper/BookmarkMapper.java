@@ -31,4 +31,8 @@ public interface BookmarkMapper {
     public List<BookmarkDTO> selectAllUncategorizedByMemberId(Long memberId);
 //    회원 북마크 수 조회
     public int selectCountByMemberId(Long memberId);
+//    회원/게시글 기준 폴더 ID 목록 조회
+    public List<Long> selectFolderIdsByMemberIdAndPostId(@Param("memberId") Long memberId, @Param("postId") Long postId);
+//    회원/게시글 기준 북마크 존재 여부
+    public boolean selectExistsByMemberIdAndPostId(@Param("memberId") Long memberId, @Param("postId") Long postId);
 }

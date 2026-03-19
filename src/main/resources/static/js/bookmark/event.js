@@ -1,6 +1,8 @@
 (function () {
     "use strict";
 
+    let currentMemberId = null;
+
     const headerTitle = document.getElementById("headerTitle");
     const defaultHeaderTitle =
         headerTitle?.dataset.defaultTitle || "모든 북마크";
@@ -144,6 +146,7 @@
     let activeMorePostMeta = null;
     let toastTimer = null;
     let currentFolderName = getTextContent(bookmarkFolderLabel) || "test";
+    let currentFolderId = null;
     let currentFolderDeleted = false;
     const bookmarkFollowState = new Map();
 
@@ -265,6 +268,10 @@
     function closeShareModal() {
         if (!activeShareModal) {
             return;
+        }
+        if (shareBookmarkObserver) {
+            shareBookmarkObserver.disconnect();
+            shareBookmarkObserver = null;
         }
         toggleHiddenLayer(activeShareModal, false);
         activeShareModal = null;
@@ -431,22 +438,96 @@
         updateBodyScrollLock();
     }
 
-    function openShareBookmarkModal(button) {
+    let shareBookmarkPage = 0;
+    const shareBookmarkPageSize = 10;
+    let shareBookmarkLoading = false;
+    let shareBookmarkHasMore = true;
+    let shareBookmarkFolderIds = [];
+    let shareBookmarkObserver = null;
+
+    async function loadShareBookmarkFolders(append) {
+        const folderListEl = document.getElementById("shareBookmarkFolderList");
+        if (!folderListEl || !currentMemberId || shareBookmarkLoading || !shareBookmarkHasMore) {
+            return;
+        }
+        shareBookmarkLoading = true;
+        try {
+            const folders = await bookmarkService.getFoldersPaged(currentMemberId, shareBookmarkPage, shareBookmarkPageSize);
+            if (folders.length < shareBookmarkPageSize) {
+                shareBookmarkHasMore = false;
+            }
+            if (append) {
+                folders.forEach(folder => {
+                    folderListEl.insertAdjacentHTML("beforeend",
+                        bookmarkLayout.renderShareFolderItem(folder, shareBookmarkFolderIds));
+                });
+            } else {
+                folderListEl.innerHTML = bookmarkLayout.renderShareFolderList(folders, shareBookmarkFolderIds);
+            }
+            shareBookmarkPage++;
+            setupShareBookmarkSentinel(folderListEl);
+        } catch (e) {
+            if (!append) {
+                folderListEl.innerHTML = bookmarkLayout.renderShareFolderList([], shareBookmarkFolderIds);
+            }
+            console.error(e);
+        } finally {
+            shareBookmarkLoading = false;
+        }
+    }
+
+    function setupShareBookmarkSentinel(folderListEl) {
+        const oldSentinel = folderListEl.querySelector(".share-bookmark-sentinel");
+        if (oldSentinel) {
+            oldSentinel.remove();
+        }
+        if (!shareBookmarkHasMore) {
+            return;
+        }
+        const sentinel = document.createElement("div");
+        sentinel.className = "share-bookmark-sentinel";
+        sentinel.style.height = "1px";
+        folderListEl.appendChild(sentinel);
+
+        if (shareBookmarkObserver) {
+            shareBookmarkObserver.disconnect();
+        }
+        shareBookmarkObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadShareBookmarkFolders(true);
+            }
+        }, { root: folderListEl.closest(".bookmark-share-sheet-card--bookmark"), threshold: 0 });
+        shareBookmarkObserver.observe(sentinel);
+    }
+
+    async function openShareBookmarkModal(button) {
         const { bookmarkButton, postId } = getSharePostMeta(button);
         closeShareDropdown();
         closeShareModal();
         activeShareBookmarkButton = bookmarkButton;
         activeShareBookmarkPostId = postId;
-        shareBookmarkFolderCheck?.classList.toggle(
-            "bookmark-share-sheet-folder-check--active",
-            bookmarkButton?.classList.contains("active") ?? false,
-        );
         if (!shareBookmarkModal) {
             return;
         }
+
+        shareBookmarkPage = 0;
+        shareBookmarkHasMore = true;
+        shareBookmarkFolderIds = [];
+
+        if (currentMemberId && activeShareBookmarkPostId) {
+            try {
+                shareBookmarkFolderIds = await bookmarkService.getBookmarkedFolderIds(
+                    currentMemberId, Number(activeShareBookmarkPostId));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         toggleHiddenLayer(shareBookmarkModal, true);
         activeShareModal = shareBookmarkModal;
         updateBodyScrollLock();
+
+        await loadShareBookmarkFolders(false);
     }
 
     function positionDropdownLayer(layer, anchorRect) {
@@ -538,14 +619,28 @@
         window.setTimeout(() => deleteModalSubmitButton?.focus(), 0);
     }
 
-    function deleteCurrentFolder() {
-        currentFolderDeleted = true;
-        closeDeleteModal();
-        if (isDetailViewOpen) {
-            closeBookmarkDetail();
+    async function deleteCurrentFolder() {
+        try {
+            await bookmarkService.deleteFolder(currentFolderId);
+
+            const folderButton = document.querySelector(`[data-folder-id="${currentFolderId}"]`);
+            if (folderButton) {
+                folderButton.remove();
+            }
+
+            closeDeleteModal();
+            if (isDetailViewOpen) {
+                closeBookmarkDetail();
+            }
+            currentFolderId = null;
+            currentFolderName = defaultHeaderTitle;
+            currentFolderDeleted = false;
+            showToast("폴더를 삭제했습니다");
+        } catch (e) {
+            closeDeleteModal();
+            showToast("폴더 삭제에 실패했습니다");
+            console.error(e);
         }
-        syncFolderNameUI();
-        showToast("폴더를 삭제했습니다");
     }
 
     function openShareDropdown(button) {
@@ -625,17 +720,26 @@
         }
     }
 
-    function removeBookmarkedPost(postId) {
+    async function removeBookmarkedPost(postId) {
         const postCard = bookmarkPosts?.querySelector(
             `.bookmark-post[data-post-id="${postId}"]`,
         );
         if (!postCard) {
             return false;
         }
-        postCard.remove();
-        syncBookmarkPostsEmpty();
-        showToast("북마크에서 삭제했습니다");
-        return true;
+        try {
+            if (currentMemberId && postId) {
+                await bookmarkService.deleteBookmarkByPost(currentMemberId, Number(postId));
+            }
+            postCard.remove();
+            syncBookmarkPostsEmpty();
+            showToast("북마크에서 삭제했습니다");
+            return true;
+        } catch (e) {
+            showToast("북마크 삭제에 실패했습니다");
+            console.error(e);
+            return false;
+        }
     }
 
     function updateBodyScrollLock() {
@@ -659,13 +763,13 @@
         mediaPreviewImage.removeAttribute("alt");
         updateBodyScrollLock();
     }
-    function openBookmarkDetail(folderName) {
+    async function openBookmarkDetail(folderName, folderId) {
         if (!listView || !detailView || isDetailViewOpen || currentFolderDeleted) {
             return;
         }
         currentFolderName = folderName || currentFolderName;
+        currentFolderId = folderId || currentFolderId;
         syncFolderNameUI();
-        syncBookmarkPostsEmpty();
         isDetailViewOpen = true;
         listView.hidden = true;
         detailView.hidden = false;
@@ -673,6 +777,22 @@
         detailMoreButton?.removeAttribute("hidden");
         setHeaderTitle(currentFolderName);
         window.scrollTo({ top: 0, behavior: "auto" });
+
+        if (bookmarkPosts && currentMemberId) {
+            try {
+                let bookmarks;
+                if (currentFolderId) {
+                    bookmarks = await bookmarkService.getBookmarksByFolder(currentFolderId);
+                } else {
+                    bookmarks = await bookmarkService.getBookmarks(currentMemberId);
+                }
+                bookmarkPosts.innerHTML = bookmarkLayout.renderBookmarkPosts(bookmarks);
+            } catch (e) {
+                bookmarkPosts.innerHTML = '';
+                console.error(e);
+            }
+            syncBookmarkPostsEmpty();
+        }
     }
 
     function closeBookmarkDetail() {
@@ -704,7 +824,10 @@
     document.addEventListener("click", (event) => {
         const folderButton = event.target.closest("[data-bookmark-folder]");
         if (folderButton) {
-            openBookmarkDetail(folderButton.dataset.bookmarkFolder || "북마크");
+            openBookmarkDetail(
+                folderButton.dataset.bookmarkFolder || "북마크",
+                folderButton.dataset.folderId || null
+            );
             return;
         }
     });
@@ -776,12 +899,29 @@
             }
         });
         folderNameInput.addEventListener("input", updateModalState);
-        modalSubmitButton.addEventListener("click", () => {
+        modalSubmitButton.addEventListener("click", async () => {
             const value = folderNameInput.value.trim();
             if (!value) {
                 return;
             }
-            showToast(`${value} 폴더를 만들었습니다`);
+            try {
+                await bookmarkService.createFolder({ memberId: currentMemberId, folderName: value });
+
+                const folders = await bookmarkService.getFolders(currentMemberId);
+                const created = folders.find(f => f.folderName === value);
+                const folderId = created ? created.id : null;
+
+                const folderButtonHtml = bookmarkLayout.renderFolderItem({ id: folderId, folderName: value });
+                const bookmarkListSection = document.querySelector(".bookmark-list");
+                if (bookmarkListSection) {
+                    bookmarkListSection.insertAdjacentHTML("beforeend", folderButtonHtml);
+                }
+
+                showToast(`${value} 폴더를 만들었습니다`);
+            } catch (e) {
+                showToast("폴더 생성에 실패했습니다");
+                console.error(e);
+            }
             closeModal();
         });
     }
@@ -835,16 +975,34 @@
             }
         });
         editFolderNameInput.addEventListener("input", updateEditModalState);
-        editModalSubmitButton.addEventListener("click", () => {
+        editModalSubmitButton.addEventListener("click", async () => {
             const value = editFolderNameInput.value.trim();
             if (!value || value === currentFolderName) {
                 return;
             }
-            currentFolderName = value;
-            syncFolderNameUI();
-            setHeaderTitle(value);
-            closeEditModal();
-            showToast("폴더를 수정했습니다");
+            try {
+                await bookmarkService.updateFolder({ id: currentFolderId, folderName: value });
+                currentFolderName = value;
+                syncFolderNameUI();
+                setHeaderTitle(value);
+
+                const folderButton = document.querySelector(`[data-folder-id="${currentFolderId}"]`);
+                if (folderButton) {
+                    folderButton.dataset.bookmarkFolder = value;
+                    folderButton.setAttribute("aria-label", `${value} 북마크 열기`);
+                    const label = folderButton.querySelector(".bookmark-item-label");
+                    if (label) {
+                        label.textContent = value;
+                    }
+                }
+
+                closeEditModal();
+                showToast("폴더를 수정했습니다");
+            } catch (e) {
+                closeEditModal();
+                showToast("폴더 수정에 실패했습니다");
+                console.error(e);
+            }
         });
     }
 
@@ -907,11 +1065,39 @@
         modalOpenButton?.click();
     });
 
-    shareBookmarkFolderButton?.addEventListener("click", () => {
-        if (activeShareBookmarkButton) {
-            setBookmarkButtonState(activeShareBookmarkButton, true);
+    document.getElementById("shareBookmarkFolderList")?.addEventListener("click", async (event) => {
+        const folderButton = event.target.closest("[data-share-folder-id]");
+        if (!folderButton || !currentMemberId || !activeShareBookmarkPostId) {
+            return;
         }
-        closeShareModal();
+        const folderId = folderButton.dataset.shareFolderId || null;
+        const folderIdNum = folderId ? Number(folderId) : null;
+        const folderName = folderButton.querySelector(".bookmark-share-sheet-folder-name")?.textContent || "북마크";
+        const checkEl = folderButton.querySelector(".bookmark-share-sheet-folder-check");
+        const isAlreadyBookmarked = checkEl && checkEl.classList.contains("bookmark-share-sheet-folder-check--active");
+
+        if (isAlreadyBookmarked) {
+            return;
+        }
+
+        try {
+            await bookmarkService.addBookmark({
+                memberId: currentMemberId,
+                postId: Number(activeShareBookmarkPostId),
+                folderId: folderIdNum
+            });
+            if (activeShareBookmarkButton) {
+                setBookmarkButtonState(activeShareBookmarkButton, true);
+            }
+            if (checkEl) {
+                checkEl.classList.add("bookmark-share-sheet-folder-check--active");
+                checkEl.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></svg>';
+            }
+            showToast(`${folderName}에 추가되었습니다`);
+        } catch (e) {
+            showToast("북마크 추가에 실패했습니다");
+            console.error(e);
+        }
     });
 
     shareDropdown?.addEventListener("click", (event) => {
@@ -1737,5 +1923,21 @@
         closeBookmarkReplyModal();
         showToast("답글이 게시되었습니다");
     });
+
+//    ── 페이지 초기화: 로그인 회원 정보 + 폴더 목록 서버 조회 ──
+    (async () => {
+        try {
+            const member = await bookmarkService.getMyInfo();
+            currentMemberId = member.id;
+
+            const folders = await bookmarkService.getFolders(currentMemberId);
+            const bookmarkListSection = document.querySelector(".bookmark-list");
+            if (bookmarkListSection) {
+                bookmarkListSection.innerHTML = bookmarkLayout.renderFolderList(folders);
+            }
+        } catch (e) {
+            console.error("북마크 초기화 실패:", e);
+        }
+    })();
 
 })();

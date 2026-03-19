@@ -6,12 +6,14 @@ import com.app.globalgates.repository.BookmarkDAO;
 import com.app.globalgates.repository.BookmarkFolderDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 public class BookmarkService {
     private final BookmarkDAO bookmarkDAO;
     private final BookmarkFolderDAO bookmarkFolderDAO;
@@ -90,5 +92,25 @@ public class BookmarkService {
 //    북마크 개수 조회
     public int getBookmarkCount(Long memberId) {
         return bookmarkDAO.countByMemberId(memberId);
+    }
+
+//    회원/게시글 기준 북마크된 폴더 ID 목록 조회
+    public List<Long> getBookmarkedFolderIds(Long memberId, Long postId) {
+        return bookmarkDAO.findFolderIdsByMemberIdAndPostId(memberId, postId);
+    }
+
+//    회원/게시글 기준 북마크 존재 여부
+    public boolean isBookmarked(Long memberId, Long postId) {
+        return bookmarkDAO.existsByMemberIdAndPostId(memberId, postId);
+    }
+
+//    폴더 목록 페이징 조회
+    public List<BookmarkFolderDTO> getFoldersPaged(Long memberId, int page, int size) {
+        return bookmarkFolderDAO.findAllByMemberIdPaged(memberId, page, size);
+    }
+
+//    폴더 수 조회
+    public int getFolderCount(Long memberId) {
+        return bookmarkFolderDAO.countByMemberId(memberId);
     }
 }

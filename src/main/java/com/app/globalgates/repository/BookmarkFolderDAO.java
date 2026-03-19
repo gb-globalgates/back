@@ -37,4 +37,14 @@ public class BookmarkFolderDAO {
     public List<BookmarkFolderDTO> findAllByMemberId(Long memberId) {
         return bookmarkFolderMapper.selectAllByMemberId(memberId);
     }
+
+//    회원 폴더 목록 페이징 조회
+    public List<BookmarkFolderDTO> findAllByMemberIdPaged(Long memberId, int page, int size) {
+        return bookmarkFolderMapper.selectAllByMemberIdPaged(memberId, page * size, size);
+    }
+
+//    회원 폴더 수 조회
+    public int countByMemberId(Long memberId) {
+        return bookmarkFolderMapper.selectCountByMemberId(memberId);
+    }
 }

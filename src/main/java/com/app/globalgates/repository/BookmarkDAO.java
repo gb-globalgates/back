@@ -67,4 +67,14 @@ public class BookmarkDAO {
     public int countByMemberId(Long memberId) {
         return bookmarkMapper.selectCountByMemberId(memberId);
     }
+
+//    회원/게시글 기준 폴더 ID 목록 조회
+    public List<Long> findFolderIdsByMemberIdAndPostId(Long memberId, Long postId) {
+        return bookmarkMapper.selectFolderIdsByMemberIdAndPostId(memberId, postId);
+    }
+
+//    회원/게시글 기준 북마크 존재 여부
+    public boolean existsByMemberIdAndPostId(Long memberId, Long postId) {
+        return bookmarkMapper.selectExistsByMemberIdAndPostId(memberId, postId);
+    }
 }

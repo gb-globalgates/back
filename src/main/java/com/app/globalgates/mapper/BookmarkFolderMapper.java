@@ -2,6 +2,7 @@ package com.app.globalgates.mapper;
 
 import com.app.globalgates.dto.BookmarkFolderDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,8 @@ public interface BookmarkFolderMapper {
     public Optional<BookmarkFolderDTO> selectById(Long id);
 //    회원의 폴더 목록 조회
     public List<BookmarkFolderDTO> selectAllByMemberId(Long memberId);
+//    회원의 폴더 목록 페이징 조회
+    public List<BookmarkFolderDTO> selectAllByMemberIdPaged(@Param("memberId") Long memberId, @Param("offset") int offset, @Param("size") int size);
+//    회원의 폴더 수 조회
+    public int selectCountByMemberId(Long memberId);
 }

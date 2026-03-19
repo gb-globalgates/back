@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +21,20 @@ class BookmarkFolderMapperTest {
     @Autowired
     private BookmarkFolderMapper bookmarkFolderMapper;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private Long memberId;
 
     @BeforeEach
     void setUp() {
-        memberId = 1L;
+        jdbcTemplate.update(
+                "insert into tbl_member (member_email, member_password, member_nickname) values (?, ?, ?) on conflict (member_email) do nothing",
+                "folder-test@test.com", "password123", "폴더테스트유저"
+        );
+        memberId = jdbcTemplate.queryForObject(
+                "select id from tbl_member where member_email = ?", Long.class, "folder-test@test.com"
+        );
     }
 
     @Test

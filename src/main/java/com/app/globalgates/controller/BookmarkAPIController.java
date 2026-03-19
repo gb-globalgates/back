@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -75,5 +76,18 @@ public class BookmarkAPIController {
     @GetMapping("/members/{memberId}/uncategorized")
     public List<BookmarkDTO> getUncategorizedBookmarks(@PathVariable Long memberId) {
         return bookmarkService.getUncategorizedBookmarks(memberId);
+    }
+
+    @GetMapping("/members/{memberId}/posts/{postId}/folders")
+    public List<Long> getBookmarkedFolderIds(@PathVariable Long memberId, @PathVariable Long postId) {
+        return bookmarkService.getBookmarkedFolderIds(memberId, postId);
+    }
+
+    @GetMapping("/folders/{memberId}/paged")
+    public List<BookmarkFolderDTO> getFoldersPaged(
+            @PathVariable Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return bookmarkService.getFoldersPaged(memberId, page, size);
     }
 }

@@ -3,6 +3,10 @@ server:
   servlet:
     session:
       tracking-modes: cookie
+  ssl:
+    enabled: true
+    certificate: classpath:_wildcard.app.gloabalgates+3.pem
+    certificate-private-key: classpath:_wildcard.app.gloabalgates+3-key.pem
 
 spring:
   datasource:
@@ -22,9 +26,9 @@ spring:
   cache:
     type: redis
 
-  profiles:
-    active: local
-    include: oauth
+#  profiles:
+#    active: local
+#    include: oauth
 
   servlet:
     multipart:
