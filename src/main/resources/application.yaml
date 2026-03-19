@@ -3,6 +3,7 @@ server:
   servlet:
     session:
       tracking-modes: cookie
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -41,7 +42,7 @@ mybatis:
 
 # openssl rand -base64 32
 jwt:
-  secret: OK4V20ACS5A+oy+jvpZ0oFFrsur1VZO6Upjop4TRa+Y=
+  secret: D/XhOi75i22MG5x3JJ0Cq93pa4WOLPwCbdYFWcEBCdI=
 
 aws:
   access-key: 123
