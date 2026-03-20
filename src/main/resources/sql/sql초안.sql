@@ -54,12 +54,26 @@ create type member_role as enum (
 'admin'         -- 관리자
 );
 
+-- 1. member_name 컬럼 추가
+alter table tbl_member
+    add column member_name varchar(255);
+
+-- 2. member_nickname의 not null 제거
+alter table tbl_member
+    alter column member_nickname drop not null;
+
+-- 3. member_handle에 not null 추가
+--    (기존 데이터에 null이 있으면 에러 발생 → 먼저 확인/처리 필요)
+alter table tbl_member
+    alter column member_handle set not null;
+-- 수정사항: member_name 컬럼 추가, nickname에 not null제거, handle에 not null 추가.
 create table tbl_member (
 id            bigint        generated always as identity primary key,  -- pk | 회원 고유 id (자동 증가)
+member_name varchar(255),
 member_email         varchar(255)  not null unique,                           -- 로그인 이메일 (unique)
 member_password      varchar(255),                                            -- 해시된 비밀번호 (oauth 전용이면 null)
-member_nickname      varchar(255)   not null,                                  -- 닉네임 (화면 표시용)
-member_handle        varchar(255)   unique,                                    -- @핸들 - 마이페이지 url 구분자 (unique)
+member_nickname      varchar(255) ,                                  -- 닉네임 (화면 표시용)
+member_handle        varchar(255)   unique not null,                                    -- @핸들 - 마이페이지 url 구분자 (unique)
 member_phone         varchar(255),                                             -- 연락처
 member_bio           text,                                                    -- 자기소개 / 프로필 설명 (mypage description)
 member_region        varchar(255),                                            -- 활동 지역 (mypage 표시)
@@ -577,6 +591,9 @@ create type ad_status as enum (
 'expired'        -- 만료됨
 );
 
+select * from tbl_advertisement;
+-- expired_at 컬럼 삭제
+alter table tbl_advertisement drop expired_at;
 create table tbl_advertisement (
 id            bigint         generated always as identity primary key,  -- pk | 광고 고유 id (자동 증가)
 advertiser_id bigint         not null,  -- fk → tbl_member.id | 광고 등록 회원(광고주)
