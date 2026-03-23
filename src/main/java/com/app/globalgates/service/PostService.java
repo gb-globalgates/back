@@ -81,9 +81,12 @@ public class PostService {
     }
 
     //    게시글 목록 조회
-    public List<PostDTO> getList(int page, Long memberId) {
+    public PostWithPagingDTO getList(int page, Long memberId) {
         Criteria criteria = new Criteria(page, postDAO.findTotal());
         List<PostDTO> posts = postDAO.findAll(criteria, memberId);
+
+        criteria.setHasMore(posts.size() > criteria.getRowCount());
+        if (criteria.isHasMore()) posts.remove(posts.size() - 1);
 
         posts.forEach(postDTO -> {
             postDTO.setHashtags(postHashtagDAO.findAllByPostId(postDTO.getId()));
@@ -91,7 +94,10 @@ public class PostService {
                     .stream().map(PostFileDTO::getFilePath).collect(Collectors.toList()));
         });
 
-        return posts;
+        PostWithPagingDTO postWithPagingDTO = new PostWithPagingDTO();
+        postWithPagingDTO.setPosts(posts);
+        postWithPagingDTO.setCriteria(criteria);
+        return postWithPagingDTO;
     }
 
     //    게시글 단건 조회
