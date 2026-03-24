@@ -37,6 +37,7 @@ public class MemberService {
         memberDAO.save(memberDTO);
         log.info(memberDTO.toBusinessMemberVO().toString());
 
+        // 사업자 정보 저장
         BusinessMemberDTO businessMemberDTO = new BusinessMemberDTO();
         businessMemberDTO.setId(memberDTO.getId());
         businessMemberDTO.setBusinessNumber(memberDTO.getBusinessNumber());
@@ -45,10 +46,10 @@ public class MemberService {
         businessMemberDTO.setBusinessType(memberDTO.getBusinessType());
         businessMemberDAO.save(businessMemberDTO.toBusinessMemberVO());
 
-        CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setCategoryName(memberDTO.getCategoryName());
-        categoryDAO.save(categoryDTO);
+        // 회원가입 정보에서 가져온 카테고리 이름으로 카테고리 조회
+        CategoryDTO categoryDTO = categoryDAO.findByCategoryName(memberDTO.getCategoryName()).orElseThrow(null);
 
+        // 사업자 관심사 저장
         CategoryMemberDTO categoryMemberDTO = new CategoryMemberDTO();
         categoryMemberDTO.setMemberId(memberDTO.getId());
         categoryMemberDTO.setCategoryId(categoryDTO.getId());

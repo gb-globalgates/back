@@ -13,7 +13,7 @@ public interface CategoryMapper {
 //    memberId로 조회
     public Optional<CategoryDTO> selectById(Long id);
 //  카테고리 이름으로 조회
-    public List<CategoryDTO> selectByCategoryName(String categoryName);
+    public Optional<CategoryDTO> selectByCategoryName(String categoryName);
 //  삭제
     public void delete(Long id);
 

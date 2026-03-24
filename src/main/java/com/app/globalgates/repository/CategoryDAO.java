@@ -21,8 +21,7 @@ public class CategoryDAO {
         return categoryMapper.selectById(id);
     }
 
-    public List<CategoryDTO> findByCategoryName(String
-                                                            categoryName) {
+    public Optional<CategoryDTO> findByCategoryName(String categoryName) {
         return categoryMapper.selectByCategoryName(categoryName);
     }
 

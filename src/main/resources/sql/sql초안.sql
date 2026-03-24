@@ -76,6 +76,7 @@ alter table tbl_member
 alter column member_email drop not null;
 alter table tbl_member
 add constraint member_email_unique unique (member_email);
+alter table tbl_member add member_login_verified boolean default true;
 
 create table tbl_member (
 id            bigint        generated always as identity primary key,  -- pk | 회원 고유 id (자동 증가)

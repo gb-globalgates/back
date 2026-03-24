@@ -41,8 +41,8 @@ public class CategoryMapperTests {
 
     @Test
     public void testSelectByCategoryName(){
-        List<CategoryDTO> categories = categoryMapper.selectByCategoryName("섬유/의류");
-        categories.forEach(category -> log.info("category : {}", category));
+        Optional<CategoryDTO> category = categoryMapper.selectByCategoryName("섬유/의류");
+        log.info("category : {}", category);
     }
 
 }
