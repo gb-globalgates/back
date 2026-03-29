@@ -39,6 +39,13 @@ public class PostProductDAO {
         return postProductMapper.selectTotalByMemberId(memberId);
     }
 
+//    상품 작성자 조회
+    // 컨트롤러는 인증 사용자 id만 알고 있으므로,
+    // 실제 삭제 가능 여부 판단에 필요한 작성자 id 조회는 DAO가 맡는다.
+    public Long findMemberIdByProductId(Long productId) {
+        return postProductMapper.selectMemberIdByProductId(productId);
+    }
+
 //    조회된 상품 총 개수
     public int getTotal() {
         return postProductMapper.selectTotal();

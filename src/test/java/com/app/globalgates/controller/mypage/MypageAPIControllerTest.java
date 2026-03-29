@@ -9,8 +9,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,5 +41,18 @@ class MypageAPIControllerTest {
 
         assertSame(pagingDTO, result);
         verify(postProductService).getMyProducts(1, 7L);
+    }
+
+    @Test
+    void deleteProduct_deletesOnlyAuthenticatedMembersProduct() {
+        MemberDTO memberDTO = new MemberDTO();
+        memberDTO.setId(7L);
+
+        CustomUserDetails userDetails = new CustomUserDetails(memberDTO);
+
+        ResponseEntity<?> responseEntity = mypageAPIController.deleteProduct(31L, userDetails);
+
+        assertEquals(Map.of("message", "상품 삭제 성공"), responseEntity.getBody());
+        verify(postProductService).delete(31L, 7L);
     }
 }

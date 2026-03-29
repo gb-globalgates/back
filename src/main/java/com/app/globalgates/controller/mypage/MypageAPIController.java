@@ -87,4 +87,17 @@ public class MypageAPIController {
                 "message", "상품 등록 성공"
         ));
     }
+
+    @PostMapping("/products/delete")
+    public ResponseEntity<?> deleteProduct(
+            @RequestParam Long productId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // 삭제 권한 판단에 필요한 memberId는 프론트에서 받지 않는다.
+        // 항상 현재 로그인한 사용자 id를 기준으로 서비스 계층에 넘겨서
+        // 다른 사람 상품 삭제 시도를 서버에서 차단한다.
+        postProductService.delete(productId, userDetails.getId());
+
+        return ResponseEntity.ok(Map.of("message", "상품 삭제 성공"));
+    }
 }

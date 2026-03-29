@@ -70,6 +70,33 @@ public class PostProductService {
         postDAO.delete(id);
     }
 
+    // 상품 삭제
+    public void delete(Long productId, Long memberId) {
+        // 삭제 요청이 들어온 상품의 실제 작성자 id를 먼저 조회한다.
+        // 조회 결과가 없으면:
+        // 1. 존재하지 않는 상품이거나
+        // 2. 이미 inactive 처리된 상품이므로
+        // 삭제 요청을 계속 진행하지 않는다.
+        Long foundMemberId = postProductDAO.findMemberIdByProductId(productId);
+
+        if (foundMemberId == null) {
+            throw new IllegalArgumentException("삭제할 상품이 존재하지 않습니다.");
+        }
+
+        // 프론트에서 productId를 임의로 바꿔 보내더라도
+        // 여기서 현재 로그인 사용자와 실제 작성자를 다시 비교해
+        // 본인 상품 삭제만 허용한다.
+        if (!foundMemberId.equals(memberId)) {
+            throw new IllegalArgumentException("본인 상품만 삭제할 수 있습니다.");
+        }
+
+        // 실제 삭제는 기존 게시글 삭제 로직과 동일하게 soft delete 로 처리한다.
+        // 즉 tbl_post_product row를 직접 지우지 않고,
+        // tbl_post.post_status 를 inactive 로 바꿔
+        // 현재 목록 조회 쿼리에서 자동으로 제외되게 만든다.
+        postDAO.delete(productId);
+    }
+
     public String getTodayPath() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
     }

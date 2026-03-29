@@ -38,13 +38,13 @@
             <!-- ====== 프로필 섹션 ====== -->
             <div class="Profile-Section">
                 <div class="Profile-Banner">
-                    <img src="" alt="profile-banner">
+                    <img th:src="${bannerImageUrl}" src="/images/main/lown1.jpg" alt="profile-banner">
                 </div>
                 <div class="Profile-Avatar-Row">
                     <div class="Profile-Avatar-Container" data-testid="UserAvatar-Container-JeongSIkLe247">
                         <div class="Profile-Avatar-Img-Wrap">
                             <div class="Profile-Avatar-Circle">
-                                <img src="" alt="프로필 이미지" class="Profile-Avatar-Img"/>
+                                <img th:src="${profileImageUrl}" src="/images/main/global-gates-logo.png" alt="프로필 이미지" class="Profile-Avatar-Img"/>
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                     </div>
                 </div>
                 <div class="Profile-Description" data-testid="UserDescription">
-                    <span class="Profile-Description-Text">ㅁㄴㅇㅁㄴㅇㅁㄴㅇ</span>
+                    <span class="Profile-Description-Text" th:text="${member.memberBio ?: ''}">ㅁㄴㅇㅁㄴㅇㅁㄴㅇ</span>
                 </div>
                 <div class="Profile-Meta" data-testid="UserProfileHeader_Items">
                     <a href="" class="Profile-Join-Date" data-testid="UserJoinDate">
@@ -105,12 +105,18 @@
                 </div>
                 <div class="Profile-Follow-Row">
                     <a href="" class="Profile-Follow-Link">
-                        <span class="Profile-Follow-Count">4</span>
-                        <span class="Profile-Follow-Label">팔로우 중</span>
+                        <!-- 현재 로그인한 사용자가 "연결하고 있는" 회원 수를 보여준다.
+                             서비스 로직은 기존 followings 개념을 그대로 유지하고,
+                             화면 텍스트만 서비스 용어에 맞춰 커넥팅으로 바꿔서 렌더링한다. -->
+                        <span class="Profile-Follow-Count" th:text="${connectingCount}">0</span>
+                        <span class="Profile-Follow-Label">커넥팅</span>
                     </a>
                     <a href="" class="Profile-Follow-Link">
-                        <span class="Profile-Follow-Count">4</span>
-                        <span class="Profile-Follow-Label">팔로워</span>
+                        <!-- 현재 로그인한 사용자를 "연결한" 회원 수를 보여준다.
+                             서비스 로직은 기존 followers 개념을 그대로 유지하고,
+                             화면 텍스트만 커넥터로 바꿔서 출력한다. -->
+                        <span class="Profile-Follow-Count" th:text="${connectorCount}">0</span>
+                        <span class="Profile-Follow-Label">커넥터</span>
                     </a>
                 </div>
             </div>
@@ -723,7 +729,7 @@
             </div>
             <div class="Profile-Edit-ScrollContent">
                 <div class="Profile-Edit-PhotoSection">
-                    <div class="Profile-Edit-Banner-Area">
+                    <div class="Profile-Edit-Banner-Area" th:style="|background-image: url('${bannerImageUrl}');|">
                         <button class="Profile-Edit-Banner-Button" type="button" aria-label="배너 사진 추가하기">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
                                 <path d="M9.697 3H11v2h-.697l-2 2H5c-.276 0-.5.224-.5.5v11c0 .276.224.5.5.5h14c.276 0 .5-.224.5-.5V10h2v8.5c0 1.381-1.119 2.5-2.5 2.5H5c-1.381 0-2.5-1.119-2.5-2.5v-11C2.5 6.119 3.619 5 5 5h2.697l2-2zM12 10.5c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zm0-2c2.209 0 4 1.791 4 4s-1.791 4-4 4-4-1.791-4-4 1.791-4 4-4zM17 2h2v2.5h2.5v2H19V9h-2V6.5h-2.5v-2H17V2z"></path>
@@ -732,7 +738,7 @@
                         <input class="Profile-Edit-Banner-FileInput" type="file" accept="image/*">
                     </div>
                     <div class="Profile-Edit-Avatar-Container">
-                        <div class="Profile-Edit-Avatar-Image"></div>
+                        <div class="Profile-Edit-Avatar-Image" th:style="|background-image: url('${profileImageUrl}');|"></div>
                         <button class="Profile-Edit-Avatar-Button" type="button" aria-label="아바타 사진 추가하기">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
                                 <path d="M9.697 3H11v2h-.697l-2 2H5c-.276 0-.5.224-.5.5v11c0 .276.224.5.5.5h14c.276 0 .5-.224.5-.5V10h2v8.5c0 1.381-1.119 2.5-2.5 2.5H5c-1.381 0-2.5-1.119-2.5-2.5v-11C2.5 6.119 3.619 5 5 5h2.697l2-2zM12 10.5c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zm0-2c2.209 0 4 1.791 4 4s-1.791 4-4 4-4-1.791-4-4 1.791-4 4-4zM17 2h2v2.5h2.5v2H19V9h-2V6.5h-2.5v-2H17V2z"></path>
@@ -761,17 +767,7 @@
                                 <span class="Profile-Edit-Field-Counter">9 / 160</span>
                             </div>
                             <textarea class="Profile-Edit-Bio-Textarea" id="description" name="description"
-                                      maxlength="160">ㅁㄴㅇㅁㄴㅇㅁㄴㅇ</textarea>
-                        </div>
-                    </label>
-                </div>
-                <div class="Profile-Edit-Field">
-                    <label class="Profile-Edit-Field-Label" for="url">
-                        <div class="Profile-Edit-Field-Inner">
-                            <div class="Profile-Edit-Field-Header">
-                                <span class="Profile-Edit-Field-LabelText">웹사이트</span>
-                            </div>
-                            <input class="Profile-Edit-Website-Input" id="url" type="text" name="url" maxlength="100">
+                                      maxlength="160" th:text="${member.memberBio ?: ''}">ㅁㄴㅇㅁㄴㅇㅁㄴㅇ</textarea>
                         </div>
                     </label>
                 </div>
@@ -785,7 +781,8 @@
                                       style="color:#f4212e;display:none;"></span>
                             </div>
                             <input class="Profile-Edit-Location-Input Profile-Edit-Birthdate-Input" id="birthdate"
-                                   type="text" name="birthdate" maxlength="8" placeholder="19970718" autocomplete="off">
+                                   type="text" name="birthdate" maxlength="8" placeholder="19970718" autocomplete="off"
+                                   th:value="${member.birthDate ?: ''}">
                         </div>
                     </label>
                 </div>

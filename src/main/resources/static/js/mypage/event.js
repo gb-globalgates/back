@@ -2396,9 +2396,6 @@ window.onload = function () {
     document
         .querySelector(".Profile-Edit-Close-Button")
         ?.addEventListener("click", () => closeModal(profileEditModalOverlay));
-    document
-        .querySelector(".Profile-Edit-Save-Button")
-        ?.addEventListener("click", () => closeModal(profileEditModalOverlay));
 
     // [FIX 1] 생년월일 정규식
     const birthdateInput = document.querySelector(
@@ -2435,6 +2432,140 @@ window.onload = function () {
             }
         });
     }
+
+    const profileEditSaveButton = document.querySelector(
+        ".Profile-Edit-Save-Button",
+    );
+    const profileEditNameInput = document.querySelector(
+        ".Profile-Edit-Name-Input",
+    );
+    const profileEditBioTextarea = document.querySelector(
+        ".Profile-Edit-Bio-Textarea",
+    );
+    const profileEditBannerArea = document.querySelector(
+        ".Profile-Edit-Banner-Area",
+    );
+    const profileEditAvatarImage = document.querySelector(
+        ".Profile-Edit-Avatar-Image",
+    );
+    const profileEditBannerButton = document.querySelector(
+        ".Profile-Edit-Banner-Button",
+    );
+    const profileEditAvatarButton = document.querySelector(
+        ".Profile-Edit-Avatar-Button",
+    );
+    const profileEditBannerFileInput = document.querySelector(
+        ".Profile-Edit-Banner-FileInput",
+    );
+    const profileEditAvatarFileInput = document.querySelector(
+        ".Profile-Edit-Avatar-FileInput",
+    );
+
+    let profileCheckSubmit = true;
+
+    function showProfilePreview(file, callback) {
+        // 프로필 수정 모달은 선택 직후 결과가 보여야 사용자가 어떤 파일을 올리는지 알 수 있다.
+        // 그래서 업로드 요청을 보내기 전, FileReader로 로컬 미리보기만 먼저 만든다.
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => callback(e.target.result);
+        reader.readAsDataURL(file);
+    }
+
+    profileEditBannerButton?.addEventListener("click", () => {
+        // 실제 file input은 디자인 상 숨겨져 있으므로
+        // 사용자는 버튼을 누르고, JS가 file input 클릭을 대신 실행한다.
+        profileEditBannerFileInput?.click();
+    });
+
+    profileEditAvatarButton?.addEventListener("click", () => {
+        profileEditAvatarFileInput?.click();
+    });
+
+    profileEditBannerFileInput?.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+
+        showProfilePreview(file, (result) => {
+            // 모달 안 배너 배경을 즉시 바꿔서 저장 전에도 새 이미지를 확인하게 한다.
+            if (profileEditBannerArea) {
+                profileEditBannerArea.style.backgroundImage = `url('${result}')`;
+            }
+        });
+    });
+
+    profileEditAvatarFileInput?.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+
+        showProfilePreview(file, (result) => {
+            // 아바타도 같은 방식으로 미리보기만 먼저 반영한다.
+            if (profileEditAvatarImage) {
+                profileEditAvatarImage.style.backgroundImage = `url('${result}')`;
+            }
+        });
+    });
+
+    profileEditSaveButton?.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        // 저장 버튼 연속 클릭으로 같은 요청이 여러 번 나가는 것을 막는다.
+        if (!profileCheckSubmit) {
+            return;
+        }
+
+        const memberNickname = profileEditNameInput?.value.trim() || "";
+        const memberBio = profileEditBioTextarea?.value.trim() || "";
+        const birthDate = birthdateInput?.value.trim() || "";
+
+        if (!memberNickname) {
+            alert("이름을 입력해주세요.");
+            profileEditNameInput?.focus();
+            return;
+        }
+
+        // 기존 생년월일 검증 로직은 그대로 두고,
+        // 에러 문구가 보이는 상태일 때만 저장을 막아서 현재 UI 규칙을 유지한다.
+        if (birthdateError && birthdateError.style.display !== "none") {
+            alert("생년월일 형식을 확인해주세요.");
+            birthdateInput?.focus();
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("memberNickname", memberNickname);
+        formData.append("memberBio", memberBio);
+        formData.append("birthDate", birthDate);
+
+        // 파일은 사용자가 새로 고른 경우에만 전송한다.
+        // 선택하지 않은 쪽은 서버에서 기존 프로필/배너 이미지를 그대로 유지한다.
+        if (profileEditAvatarFileInput?.files?.[0]) {
+            formData.append("profileImage", profileEditAvatarFileInput.files[0]);
+        }
+
+        if (profileEditBannerFileInput?.files?.[0]) {
+            formData.append("bannerImage", profileEditBannerFileInput.files[0]);
+        }
+
+        try {
+            profileCheckSubmit = false;
+            profileEditSaveButton.disabled = true;
+
+            const result = await service.updateProfile(formData);
+
+            alert(result.message || "프로필 수정 성공");
+
+            // 텍스트와 이미지가 같이 바뀌기 때문에 부분 DOM 갱신보다 새로고침이 안전하다.
+            // 새로고침 시 서버가 다시 member / profileImageUrl / bannerImageUrl 을 내려준다.
+            window.location.reload();
+        } catch (error) {
+            alert(error.message || "프로필 수정 중 오류가 발생했습니다.");
+        } finally {
+            profileCheckSubmit = true;
+            profileEditSaveButton.disabled = false;
+        }
+    });
 
     // [FIX 2] 클립보드 토스트
     const clipboardToast = document.querySelector(".Clipboard-Toast");
@@ -2525,6 +2656,11 @@ window.onload = function () {
         ".Post-More-Menu.ProductOther",
     );
     const postMoreMenuShare = document.querySelector(".Post-More-Menu.Share");
+
+    // 내 상품 더보기 메뉴에서 마지막으로 선택한 상품 id를 잠시 저장해둔다.
+    // 삭제 확인 모달은 어떤 카드에서 열렸는지 자체를 모르기 때문에,
+    // 더보기 버튼을 누른 시점에 이 값을 기억해두고 confirmDeleteProduct에서 재사용한다.
+    let selectedMyProductId = null;
     const allMoreMenus = [
         postMoreMenuPost,
         postMoreMenuProduct,
@@ -2637,6 +2773,8 @@ window.onload = function () {
         e.preventDefault();
         e.stopPropagation();
         if (btn.classList.contains("DeleteProduct")) {
+            // 실제 삭제는 여기서 바로 하지 않는다.
+            // 사용자가 마지막으로 한 번 더 확인할 수 있도록 삭제 확인 모달만 띄운다.
             openSmallModal(".Small-Modal.Delete-Product");
             return;
         }
@@ -2689,14 +2827,44 @@ window.onload = function () {
     // ── 상품 삭제 모달 이벤트 ──
     document
         .getElementById("confirmDeleteProduct")
-        ?.addEventListener("click", () => {
-            closeSmallModal(".Small-Modal.Delete-Product");
-            showClipboardToast("상품이 삭제되었습니다.");
+        ?.addEventListener("click", async () => {
+            // 더보기 버튼에서 저장한 상품 id가 없으면
+            // 삭제 대상을 특정할 수 없으므로 요청을 보내지 않는다.
+            if (!selectedMyProductId) {
+                alert("삭제할 상품을 찾을 수 없습니다.");
+                return;
+            }
+
+            try {
+                const result = await service.deleteProduct(selectedMyProductId);
+
+                closeSmallModal(".Small-Modal.Delete-Product");
+
+                // 상품 삭제 후에는 현재 화면 일부만 직접 지우지 않고,
+                // 기존 내 상품 목록 조회 흐름을 다시 태워서 화면 상태를 맞춘다.
+                // 이렇게 해야 page / hasMore / 무한스크롤 상태가 꼬이지 않는다.
+                myProductPage = 1;
+                myProductHasMore = true;
+
+                service.getMyProducts(1, (data) => {
+                    layout.showMyProductList(data, 1);
+                    myProductHasMore = data.criteria.hasMore;
+                });
+
+                // 한 번 삭제가 끝난 상품 id는 더 이상 들고 있을 이유가 없으므로 바로 비운다.
+                selectedMyProductId = null;
+                showClipboardToast(result.message || "상품이 삭제되었습니다.");
+            } catch (error) {
+                alert(error.message || "상품 삭제 중 오류가 발생했습니다.");
+            }
         });
     document.querySelectorAll(".Delete-Product-Close").forEach((el) => {
-        el.addEventListener("click", () =>
-            closeSmallModal(".Small-Modal.Delete-Product"),
-        );
+        el.addEventListener("click", () => {
+            // 삭제를 취소한 경우에도 이전에 선택했던 상품 id는 함께 비운다.
+            // 그래야 다음 삭제 요청에서 예전 값이 섞이지 않는다.
+            selectedMyProductId = null;
+            closeSmallModal(".Small-Modal.Delete-Product");
+        });
     });
 
     // ── 신고 모달 이벤트 ──
@@ -2743,6 +2911,12 @@ window.onload = function () {
                 e.preventDefault();
                 e.stopPropagation();
                 const card = moreBtn.closest(".Post-Card");
+
+                // 내 상품 카드의 더보기 버튼을 누른 순간
+                // 어떤 상품을 대상으로 메뉴를 열었는지 먼저 기억해둔다.
+                // 이후 삭제 메뉴 클릭, 삭제 확인 버튼 클릭은 모두 이 id를 기준으로 동작한다.
+                selectedMyProductId = card?.dataset.productId || null;
+
                 // 내 상품 탭인지 확인
                 const isMyProduct = !!card?.closest(
                     ".Profile-Content.MyProducts",

@@ -82,6 +82,24 @@
           and p.post_status = 'active'
     </select>
 
+    <select id="selectMemberIdByProductId">
+        <!--
+            상품 삭제는 tbl_post_product 를 직접 물리 삭제하지 않고,
+            기존 게시글 삭제 흐름과 동일하게 tbl_post.post_status 를 inactive 로 바꾸는 방식으로 처리한다.
+
+            다만 그 전에 "이 상품이 누구 것인지" 먼저 확인해야 하므로,
+            product id(= post id) 기준으로 member_id만 조회하는 최소 쿼리를 둔다.
+
+            active 조건을 같이 두는 이유:
+            이미 삭제된 상품(inactive)은 다시 삭제 대상이 아니기 때문이다.
+        -->
+        select p.member_id
+        from tbl_post_product pp
+                 join tbl_post p on pp.id = p.id
+        where pp.id = #{productId}
+          and p.post_status = 'active'
+    </select>
+
     <!-- 조회된 총 상품 수 -->
     <select id="selectTotal">
         select count(*)
