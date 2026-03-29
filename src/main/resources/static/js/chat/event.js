@@ -67,6 +67,10 @@ window.onload = () => {
     let isCurrentRoomMuted = false;
     let isCurrentPartnerBlocked = false;
 
+    // 1-8. 화상통화용 변수
+    const LIVEKIT_SERVER_URL = "https://localhost:6080";
+    let sessionId = null;
+
     // 2.채팅방 목록 관련 함수
 
     // 2-1.채팅방 목록 DOM 배열 반환
@@ -1851,6 +1855,54 @@ window.onload = () => {
         pendingSubscriptionRoomId = null;
         closeChatRoom();
         applyStageOnePartnerProfile();
+    }
+
+    // 화상통화 연결
+    async function startVideoCall() {
+
+        // body에서 새로 추출할 필요 없이 이미 선언된 변수 재사용
+        if (!currentMemberId || !currentPartnerId) {
+            console.error("통화 상대방 정보가 없습니다.");
+            return;
+        }
+
+        try {
+            // 1단계: 우리 서버에 세션 생성 요청 (DB 저장)
+            const { sessionId: sid, roomName } = await createVideoSession(currentPartnerId);
+            sessionId = sid;
+
+            // 2단계: LiveKit 분리 서버에 토큰 요청
+            const token = await requestLiveKitToken(roomName, `member-${currentMemberId}`);
+
+            // 3단계: token, roomName을 가지고 video.html로 이동
+            window.location.href = `/video?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(roomName)}&sessionId=${sessionId}`;
+
+        } catch (error) {
+            console.error("화상통화 시작 실패:", error.message);
+        }
+    }
+
+    // 화상통화 세션 생성 요청
+    async function createVideoSession(receiverId) {
+        const response = await fetch("/api/video-chat/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ receiverId })
+        });
+        if (!response.ok) throw new Error("세션 생성 실패: " + response.status);
+        return await response.json(); // { sessionId, roomName }
+    }
+
+    // LiveKit 서버에 토큰 요청
+    async function requestLiveKitToken(roomName, participantName) {
+        const response = await fetch(LIVEKIT_SERVER_URL + "/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roomName, participantName })
+        });
+        if (!response.ok) throw new Error("토큰 발급 실패: " + response.status);
+        const data = await response.json();
+        return data.token;
     }
 
     initializeStageOneChat();

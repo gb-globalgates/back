@@ -1,4 +1,4 @@
-﻿window.onload = () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
     // LiveKit 설정들
     const APPLICATION_SERVER_URL = "https://localhost:6080/";
     const LIVEKIT_URL = "wss://test-7paroumk.livekit.cloud";
@@ -58,7 +58,7 @@
 
     // LiveKet 서버에 token 요청
     async function requestLiveKitToken(roomName, participantName) {
-        const response = await fetch(LIVEKIT_SERVER_URL + "/token", {
+        const response = await fetch(APPLICATION_SERVER_URL + "/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ roomName, participantName })
@@ -201,4 +201,4 @@
         title.textContent = normalized;
         localStorage.setItem(STORAGE_KEY, normalized);
     });
-}
+});
