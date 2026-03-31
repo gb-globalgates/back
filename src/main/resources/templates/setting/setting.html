@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>설정 / G</title>
-    <link rel="stylesheet" href="/static/css/setting/setting.css"/>
+    <link rel="stylesheet" href="/css/setting/setting.css"/>
 </head>
 <body>
 <main class="settings-page" role="main">
@@ -298,7 +298,7 @@
                             <a class="detail-form__link" href="#">비밀번호를 잊으셨나요?</a>
                             <div class="detail-form__footer">
                                 <button
-                                        type="submit"
+                                        type="button"
                                         class="detail-form__button"
                                         data-account-auth-submit
                                         disabled
@@ -320,7 +320,10 @@
                             <button type="button" class="account-info-item" data-account-info-id="username">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">사용자 아이디</span>
-                                            <span class="account-info-item__value">tmtsugar</span>
+                                            <span class="account-info-item__value" data-account-info-value="username"
+                                                  th:text="${member.memberHandle != null and !#strings.isEmpty(member.memberHandle) ? member.memberHandle : '사용자 아이디 정보 없음'}">
+                                                @samplehandle
+                                            </span>
                                         </span>
                                 <span class="account-info-item__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
@@ -328,7 +331,10 @@
                             <button type="button" class="account-info-item" data-account-info-id="phone">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">휴대폰</span>
-                                            <span class="account-info-item__value" data-account-info-value="phone">&nbsp;</span>
+                                            <span class="account-info-item__value" data-account-info-value="phone"
+                                                  th:text="${member.memberPhone != null and !#strings.isEmpty(member.memberPhone) ? member.memberPhone : '등록된 휴대폰 번호가 없습니다.'}">
+                                                010-0000-0000
+                                            </span>
                                         </span>
                                 <span class="account-info-item__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
@@ -336,7 +342,10 @@
                             <button type="button" class="account-info-item" data-account-info-id="email">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">이메일</span>
-                                            <span class="account-info-item__value">tjdgh1851@gmail.com</span>
+                                            <span class="account-info-item__value" data-account-info-value="email"
+                                                  th:text="${member.memberEmail != null and !#strings.isEmpty(member.memberEmail) ? member.memberEmail : '등록된 이메일이 없습니다.'}">
+                                                sample@email.com
+                                            </span>
                                         </span>
                                 <span class="account-info-item__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
@@ -344,14 +353,20 @@
                             <button type="button" class="account-info-item" data-account-info-id="createdAt">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">계정 생성</span>
-                                            <span class="account-info-item__value">2025. 2. 3. 오후 5:02:45</span>
-                                            <span class="account-info-item__description">211.234.227.8 (South Korea)</span>
+                                            <span class="account-info-item__value" data-account-info-value="createdAt"
+                                                  th:text="${member.createdDatetime != null and !#strings.isEmpty(member.createdDatetime) ? member.createdDatetime : '생성일 정보 없음'}">
+                                                2025. 2. 3. 오후 5:02:45
+                                            </span>
+                                            <span class="account-info-item__description">현재 로그인 계정 기준 정보</span>
                                         </span>
                             </button>
                             <button type="button" class="account-info-item" data-account-info-id="country">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">국가</span>
-                                            <span class="account-info-item__value" data-account-info-value="country">대한민국</span>
+                                            <span class="account-info-item__value" data-account-info-value="country"
+                                                  th:text="${member.memberRegion != null and !#strings.isEmpty(member.memberRegion) ? member.memberRegion : '설정되지 않음'}">
+                                                대한민국
+                                            </span>
                                         </span>
                                 <span class="account-info-item__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
@@ -359,7 +374,10 @@
                             <button type="button" class="account-info-item" data-account-info-id="language">
                                         <span class="account-info-item__content">
                                             <span class="account-info-item__label">언어</span>
-                                            <span class="account-info-item__value" data-language-current-value>한국어, 영어, 언어 관련 내용 없음</span>
+                                            <span class="account-info-item__value" data-language-current-value
+                                                  th:text="${member.memberLanguage != null and !#strings.isEmpty(member.memberLanguage) ? member.memberLanguage : '설정되지 않음'}">
+                                                한국어
+                                            </span>
                                         </span>
                                 <span class="account-info-item__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
@@ -493,7 +511,7 @@
 
                             <div class="password-editor__actions">
                                 <button
-                                        type="submit"
+                                        type="button"
                                         class="password-editor__save"
                                         data-password-editor-save
                                         disabled
@@ -2431,6 +2449,25 @@
     </section>
 </div>
 
-<script src="/static/js/setting/event.js"></script>
+<script th:inline="javascript">
+    /*
+     * setting 화면의 최초 회원 정보는 서버가 Thymeleaf로 주입하고,
+     * event.js는 이 전역 객체를 읽어 현재 상태 객체를 초기화한다.
+     * 이 패턴을 쓰면 템플릿은 "초기값 제공", JS는 "화면 전환과 상태 동기화"만 맡게 되어
+     * 현재 repo의 window.oauthJoinData 같은 객체 주입 방식과 결이 맞는다.
+     */
+    window.settingMember = {
+        id: [[${member.id}]],
+        memberName: [[${member.memberName}]],
+        memberEmail: [[${member.memberEmail}]],
+        memberPhone: [[${member.memberPhone}]],
+        memberLanguage: [[${member.memberLanguage}]],
+        memberHandle: [[${member.memberHandle}]],
+        memberRegion: [[${member.memberRegion}]],
+        createdDatetime: [[${member.createdDatetime}]]
+    };
+</script>
+<script src="/js/setting/service.js"></script>
+<script src="/js/setting/event.js"></script>
 </body>
 </html>

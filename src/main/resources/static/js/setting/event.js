@@ -305,11 +305,10 @@ document.addEventListener("DOMContentLoaded", () => {
         accent: "blue",
         surface: "light",
     };
-    // 사용자 아이디 수정 화면에서 현재값/입력값/추천 노출 여부를 관리한다.
+    // 사용자 아이디 변경 화면은 현재 저장값만 상태로 들고 간다.
+    // 실제 입력값은 input에서 직접 읽어 비교하면 중복 상태를 만들지 않아도 된다.
     const usernameState = {
-        current: "tmtsugar",
-        draft: "tmtsugar",
-        isMarketplaceVisible: true,
+        current: (window.settingMember?.memberHandle || "").replace(/^@+/, ""),
     };
     // 비밀번호 변경 폼 입력 상태. 서버 검증 전 프론트 입력값만 담는다.
     const passwordChangeState = {
@@ -317,6 +316,17 @@ document.addEventListener("DOMContentLoaded", () => {
         nextPassword: "",
         confirmPassword: "",
     };
+    // 계정 정보 인증 화면과 비밀번호 변경 화면은 renderDetail로 숨김/표시만 바뀌고 DOM 자체는 유지된다.
+    // 그래서 join 모달들처럼 필요한 요소를 한 번만 잡아두고, 이후에는 각 버튼/입력에 직접 이벤트를 연결한다.
+    // 이 방식이 setting/event.js의 다른 화면들보다도 join 계열 스크립트의 사용 패턴과 더 가깝다.
+    const accountInfoAuthRoute = detailRoutes.querySelector('[data-detail-route-view="account-info-auth"]');
+    const accountInfoAuthInput = accountInfoAuthRoute?.querySelector("[data-account-auth-input]");
+    const accountInfoAuthButton = accountInfoAuthRoute?.querySelector("[data-account-auth-submit]");
+    const passwordEditRoute = detailRoutes.querySelector('[data-detail-route-view="password-edit"]');
+    const currentPasswordInput = passwordEditRoute?.querySelector('[data-password-editor-input="currentPassword"]');
+    const nextPasswordInput = passwordEditRoute?.querySelector('[data-password-editor-input="nextPassword"]');
+    const confirmPasswordInput = passwordEditRoute?.querySelector('[data-password-editor-input="confirmPassword"]');
+    const passwordSaveButton = passwordEditRoute?.querySelector("[data-password-editor-save]");
     // 알림 필터 상세 화면의 체크 상태. Spring이 boolean 값으로 내려주기 가장 쉬운 구조다.
     const notificationFilterState = {
         isQualityFilterEnabled: true,
@@ -377,12 +387,26 @@ document.addEventListener("DOMContentLoaded", () => {
         notificationAudience: "non-following",
         duration: "until-unmuted",
     };
+    /*
+     * 서버가 setting.html에서 주입한 현재 회원 정보다.
+     * 이 값은 최초 렌더 기준의 신뢰 가능한 소스이며,
+     * 아래 currentAccountState는 이 객체를 바탕으로 프런트 화면 상태를 시작한다.
+     */
+    const settingMember = window.settingMember || {};
+
     // 현재 로그인 계정 요약 정보. 비활성화 화면/헤더 등 공통 영역에서 사용한다.
     const currentAccountState = {
-        displayName: "tmt",
-        handle: "@tmtsugar",
+        // 표시 이름/핸들은 서버가 심어준 값을 우선 사용하고,
+        // 값이 비어 있을 때만 기존 더미/기본값으로 안전하게 떨어뜨린다.
+        displayName: settingMember.memberName || "이름 정보 없음",
+        handle: settingMember.memberHandle || "@handle",
         avatarUrl:
             "https://pbs.twimg.com/profile_images/1886326200253202432/j2j1wUY3_x96.jpg",
+        phone: settingMember.memberPhone || "",
+        email: settingMember.memberEmail || "",
+        country: settingMember.memberRegion || "설정되지 않음",
+        language: settingMember.memberLanguage || "설정되지 않음",
+        createdAt: settingMember.createdDatetime || "생성일 정보 없음",
     };
     // 휴대폰 추가/인증 모달 상태. 서버 인증 API 연결 시 request body와 거의 같은 형태로 쓰기 좋다.
     const phoneModalState = {
@@ -416,11 +440,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getUsernameValidationMessage(value) {
-        if (/^[A-Za-z0-9_]{3,15}$/.test(value)) {
-            return "";
+        const normalized = value.trim();
+
+        if (!normalized) {
+            return "아이디를 입력하세요.";
         }
 
-        return "사용자 아이디는 문자, 숫자, 밑줄을 포함할 수 있으며, 3~15자 사이여야 합니다.";
+        if (normalized.includes("@")) {
+            return "@ 없이 아이디만 입력하세요.";
+        }
+
+        if (!/^[a-z0-9_]{4,15}$/.test(normalized)) {
+            return "영문 소문자, 숫자, 밑줄(_) 4~15자만 사용할 수 있습니다.";
+        }
+
+        return "";
     }
 
     function buildUsernameSuggestions(value) {
@@ -686,60 +720,29 @@ document.addEventListener("DOMContentLoaded", () => {
         applyAccountInfoAuthState(routeRoot);
     }
 
-    function bindAccountInfoAuthRoute(routeRoot) {
-        const passwordInput = routeRoot.querySelector("[data-account-auth-input]");
-        const authForm = routeRoot.querySelector("[data-account-auth-form]");
-
-        if (passwordInput instanceof HTMLInputElement) {
-            passwordInput.addEventListener("focus", () => applyAccountInfoAuthState(routeRoot));
-            passwordInput.addEventListener("blur", () => applyAccountInfoAuthState(routeRoot));
-            passwordInput.addEventListener("input", () => applyAccountInfoAuthState(routeRoot));
-        }
-
-        if (authForm instanceof HTMLFormElement) {
-            authForm.addEventListener("submit", (event) => {
-                event.preventDefault();
-                if (!(passwordInput instanceof HTMLInputElement)) {
-                    return;
-                }
-
-                applyAccountInfoAuthState(routeRoot);
-                if (passwordInput.value.trim().length === 0) {
-                    return;
-                }
-
-                activeDetailRoute = "account-info-list";
-                renderDetail();
-            });
-        }
-    }
-
     function applyUsernameEditorState(routeRoot) {
         const usernameField = routeRoot.querySelector("[data-username-field]");
         const usernameInput = routeRoot.querySelector("[data-username-input]");
-        const usernameMessage = routeRoot.querySelector("[data-username-message]");
         const usernameSuggestionList = routeRoot.querySelector(
             "[data-username-suggestion-list]",
         );
         const usernameSaveButton = routeRoot.querySelector("[data-username-save]");
-        const usernameMarketplace = routeRoot.querySelector("[data-username-marketplace]");
 
         if (
             !(usernameField instanceof HTMLElement) ||
             !(usernameInput instanceof HTMLInputElement) ||
-            !(usernameMessage instanceof HTMLElement) ||
             !(usernameSuggestionList instanceof HTMLElement) ||
             !(usernameSaveButton instanceof HTMLButtonElement)
         ) {
             return;
         }
 
-        usernameState.draft = usernameInput.value;
-        const validationMessage = getUsernameValidationMessage(usernameState.draft);
+        const draft = usernameInput.value.trim();
+        const validationMessage = getUsernameValidationMessage(draft);
         const canSave =
             !validationMessage &&
-            usernameState.draft.length > 0 &&
-            usernameState.draft !== usernameState.current;
+            draft.length > 0 &&
+            draft !== usernameState.current;
         const usernameLabel = usernameField.querySelector(".username-field__label");
 
         usernameField.classList.toggle(
@@ -757,53 +760,120 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
-        usernameMessage.hidden = !validationMessage;
-        usernameMessage.textContent = validationMessage;
         usernameSuggestionList.innerHTML = buildUsernameSuggestionMarkup(
-            usernameState.draft,
+            draft,
         );
         usernameSaveButton.disabled = !canSave;
         usernameSaveButton.classList.toggle(
             "username-action__button--enabled",
             canSave,
         );
-        if (usernameMarketplace instanceof HTMLElement) {
-            usernameMarketplace.hidden = !usernameState.isMarketplaceVisible;
-            usernameMarketplace.setAttribute(
-                "aria-hidden",
-                String(!usernameState.isMarketplaceVisible),
-            );
-        }
     }
 
     function syncUsernameRoute(routeRoot) {
         const usernameInput = routeRoot.querySelector("[data-username-input]");
+        const usernameMessage = routeRoot.querySelector("[data-username-message]");
         if (usernameInput instanceof HTMLInputElement) {
-            usernameInput.value = usernameState.draft;
+            usernameInput.value = usernameState.current;
+        }
+        if (usernameMessage instanceof HTMLElement) {
+            usernameMessage.hidden = true;
+            usernameMessage.textContent = "";
+            usernameMessage.style.color = "rgb(217, 119, 6)";
         }
         applyUsernameEditorState(routeRoot);
     }
 
     function bindUsernameRoute(routeRoot) {
         const usernameForm = routeRoot.querySelector("[data-username-form]");
+        const usernameField = routeRoot.querySelector("[data-username-field]");
         const usernameInput = routeRoot.querySelector("[data-username-input]");
-        const usernameSuggestionList = routeRoot.querySelector(
-            "[data-username-suggestion-list]",
-        );
-        const usernameMarketplaceCloseButton = routeRoot.querySelector(
-            "[data-username-marketplace-close]",
-        );
+        const usernameMessage = routeRoot.querySelector("[data-username-message]");
+        const usernameSuggestionList = routeRoot.querySelector("[data-username-suggestion-list]");
 
-        if (usernameInput instanceof HTMLInputElement) {
-            usernameInput.addEventListener("focus", () => applyUsernameEditorState(routeRoot));
-            usernameInput.addEventListener("blur", () => applyUsernameEditorState(routeRoot));
-            usernameInput.addEventListener("input", () => applyUsernameEditorState(routeRoot));
+        if (
+            !(usernameForm instanceof HTMLFormElement) ||
+            !(usernameField instanceof HTMLElement) ||
+            !(usernameInput instanceof HTMLInputElement) ||
+            !(usernameMessage instanceof HTMLElement)
+        ) {
+            return;
         }
+
+        usernameInput.addEventListener("focus", () => {
+            applyUsernameEditorState(routeRoot);
+        });
+
+        usernameInput.addEventListener("input", () => {
+            // join의 handle 검사처럼 공백과 대문자를 입력 단계에서 정리해 비교 비용과 예외 케이스를 줄인다.
+            usernameInput.value = usernameInput.value.replace(/\s/g, "").toLowerCase();
+
+            usernameMessage.hidden = true;
+            usernameMessage.textContent = "";
+            usernameMessage.style.color = "rgb(217, 119, 6)";
+            usernameField.classList.remove("username-field--error");
+            usernameField.style.borderColor = "";
+            usernameField.style.borderWidth = "";
+
+            applyUsernameEditorState(routeRoot);
+        });
+
+        usernameInput.addEventListener("blur", async () => {
+            const draft = usernameInput.value.trim();
+            const validationMessage = getUsernameValidationMessage(draft);
+
+            if (validationMessage) {
+                usernameMessage.hidden = false;
+                usernameMessage.textContent = validationMessage;
+                usernameMessage.style.color = "rgb(217, 119, 6)";
+                usernameField.classList.add("username-field--error");
+                usernameField.style.borderColor = "rgb(217, 119, 6)";
+                usernameField.style.borderWidth = "2px";
+                return;
+            }
+
+            if (!draft || draft === usernameState.current) {
+                usernameMessage.hidden = true;
+                usernameMessage.textContent = "";
+                usernameField.classList.remove("username-field--error");
+                usernameField.style.borderColor = "";
+                usernameField.style.borderWidth = "";
+                return;
+            }
+
+            try {
+                const isAvailable = await settingService.checkHandle(draft);
+
+                usernameMessage.hidden = false;
+
+                if (!isAvailable) {
+                    usernameMessage.textContent = "이미 사용 중인 아이디입니다.";
+                    usernameMessage.style.color = "rgb(217, 119, 6)";
+                    usernameField.classList.add("username-field--error");
+                    usernameField.style.borderColor = "rgb(217, 119, 6)";
+                    usernameField.style.borderWidth = "2px";
+                    return;
+                }
+
+                usernameMessage.textContent = "사용 가능한 아이디입니다.";
+                usernameMessage.style.color = "rgb(29, 155, 240)";
+                usernameField.classList.remove("username-field--error");
+                usernameField.style.borderColor = "rgb(29, 155, 240)";
+                usernameField.style.borderWidth = "2px";
+            } catch (error) {
+                usernameMessage.hidden = false;
+                usernameMessage.textContent = "중복 확인 중 오류가 발생했습니다.";
+                usernameMessage.style.color = "rgb(217, 119, 6)";
+                usernameField.classList.add("username-field--error");
+                usernameField.style.borderColor = "rgb(217, 119, 6)";
+                usernameField.style.borderWidth = "2px";
+            }
+        });
 
         if (usernameSuggestionList instanceof HTMLElement) {
             usernameSuggestionList.addEventListener("click", (event) => {
                 const target = event.target;
-                if (!(target instanceof Element) || !(usernameInput instanceof HTMLInputElement)) {
+                if (!(target instanceof Element)) {
                     return;
                 }
 
@@ -813,41 +883,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 usernameInput.value = suggestionButton.dataset.usernameSuggestion || "";
+                usernameMessage.hidden = true;
+                usernameMessage.textContent = "";
+                usernameMessage.style.color = "rgb(217, 119, 6)";
+                usernameField.classList.remove("username-field--error");
+                usernameField.style.borderColor = "";
+                usernameField.style.borderWidth = "";
                 applyUsernameEditorState(routeRoot);
                 usernameInput.focus();
-                usernameInput.setSelectionRange(
-                    usernameInput.value.length,
-                    usernameInput.value.length,
-                );
             });
         }
 
-        if (usernameForm instanceof HTMLFormElement) {
-            usernameForm.addEventListener("submit", (event) => {
-                event.preventDefault();
-                if (!(usernameInput instanceof HTMLInputElement)) {
+        usernameForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const draft = usernameInput.value.trim();
+            const validationMessage = getUsernameValidationMessage(draft);
+
+            if (validationMessage) {
+                usernameMessage.hidden = false;
+                usernameMessage.textContent = validationMessage;
+                usernameMessage.style.color = "rgb(217, 119, 6)";
+                usernameField.classList.add("username-field--error");
+                usernameField.style.borderColor = "rgb(217, 119, 6)";
+                usernameField.style.borderWidth = "2px";
+                return;
+            }
+
+            if (!draft || draft === usernameState.current) {
+                return;
+            }
+
+            try {
+                const isAvailable = await settingService.checkHandle(draft);
+
+                if (!isAvailable) {
+                    usernameMessage.hidden = false;
+                    usernameMessage.textContent = "이미 사용 중인 아이디입니다.";
+                    usernameMessage.style.color = "rgb(217, 119, 6)";
+                    usernameField.classList.add("username-field--error");
+                    usernameField.style.borderColor = "rgb(217, 119, 6)";
+                    usernameField.style.borderWidth = "2px";
+                    usernameInput.focus();
                     return;
                 }
 
-                applyUsernameEditorState(routeRoot);
-                if (getUsernameValidationMessage(usernameInput.value)) {
-                    return;
-                }
+                await settingService.updateHandle(draft);
 
-                usernameState.current = usernameInput.value;
-                usernameState.draft = usernameInput.value;
-                accountInfoItems[0].value = usernameInput.value;
+                // 저장 성공 후에는 현재값과 계정 정보 화면 표시값만 갱신하고 상세 목록으로 복귀한다.
+                usernameState.current = draft;
+                currentAccountState.handle = `@${draft}`;
+                window.settingMember.memberHandle = `@${draft}`;
+
+                usernameMessage.hidden = true;
+                usernameMessage.textContent = "";
+                usernameField.classList.remove("username-field--error");
+                usernameField.style.borderColor = "";
+                usernameField.style.borderWidth = "";
+
                 activeDetailRoute = "account-info-list";
                 renderDetail();
-            });
-        }
-
-        if (usernameMarketplaceCloseButton instanceof HTMLButtonElement) {
-            usernameMarketplaceCloseButton.addEventListener("click", () => {
-                usernameState.isMarketplaceVisible = false;
-                applyUsernameEditorState(routeRoot);
-            });
-        }
+            } catch (error) {
+                alert(error.message || "사용자 아이디 변경 중 오류가 발생했습니다.");
+            }
+        });
     }
 
     function applyPasswordEditorState(routeRoot) {
@@ -920,26 +1019,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         applyPasswordEditorState(routeRoot);
-    }
-
-    function bindPasswordEditorRoute(routeRoot) {
-        const passwordEditorForm = routeRoot.querySelector("[data-password-editor-form]");
-        routeRoot.querySelectorAll("[data-password-editor-input]").forEach((input) => {
-            if (!(input instanceof HTMLInputElement)) {
-                return;
-            }
-
-            input.addEventListener("focus", () => applyPasswordEditorState(routeRoot));
-            input.addEventListener("blur", () => applyPasswordEditorState(routeRoot));
-            input.addEventListener("input", () => applyPasswordEditorState(routeRoot));
-        });
-
-        if (passwordEditorForm instanceof HTMLFormElement) {
-            passwordEditorForm.addEventListener("submit", (event) => {
-                event.preventDefault();
-                applyPasswordEditorState(routeRoot);
-            });
-        }
     }
 
     function syncDeactivateRoute(routeRoot) {
@@ -1216,9 +1295,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function syncAccountInfoListRoute(routeRoot) {
+        // 계정 정보 화면은 서버가 최초 값을 렌더링해두고,
+        // 프런트는 route 진입 시 현재 상태 객체를 기준으로 필요한 항목만 다시 맞춘다.
+        // 이렇게 하면 템플릿의 SSR 초기값과 프런트 상태가 같은 데이터를 바라보게 된다.
+        const usernameValue = routeRoot.querySelector('[data-account-info-value="username"]');
+        const phoneValue = routeRoot.querySelector('[data-account-info-value="phone"]');
+        const emailValue = routeRoot.querySelector('[data-account-info-value="email"]');
+        const createdAtValue = routeRoot.querySelector('[data-account-info-value="createdAt"]');
+        const countryValue = routeRoot.querySelector('[data-account-info-value="country"]');
         const languageValue = routeRoot.querySelector("[data-language-current-value]");
+
+        if (usernameValue instanceof HTMLElement) {
+            usernameValue.textContent = currentAccountState.handle || "사용자 아이디 정보 없음";
+        }
+        if (phoneValue instanceof HTMLElement) {
+            phoneValue.textContent = currentAccountState.phone || "등록된 휴대폰 번호가 없습니다.";
+        }
+        if (emailValue instanceof HTMLElement) {
+            emailValue.textContent = currentAccountState.email || "등록된 이메일이 없습니다.";
+        }
+        if (createdAtValue instanceof HTMLElement) {
+            createdAtValue.textContent = currentAccountState.createdAt || "생성일 정보 없음";
+        }
+        if (countryValue instanceof HTMLElement) {
+            countryValue.textContent = currentAccountState.country || "설정되지 않음";
+        }
         if (languageValue instanceof HTMLElement) {
-            languageValue.textContent = getCombinedLanguageLabel();
+            languageValue.textContent = currentAccountState.language || "설정되지 않음";
         }
     }
 
@@ -1228,7 +1331,6 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function syncDetailRoute(routeRoot) {
         if (activeDetailRoute === "account-info-auth") {
-            bindRouteOnce(routeRoot, "boundAccountAuth", bindAccountInfoAuthRoute);
             syncAccountInfoAuthRoute(routeRoot);
             return;
         }
@@ -1242,7 +1344,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (activeDetailRoute === "password-edit") {
-            bindRouteOnce(routeRoot, "boundPasswordEditor", bindPasswordEditorRoute);
             syncPasswordEditorRoute(routeRoot);
             return;
         }
@@ -1407,6 +1508,136 @@ document.addEventListener("DOMContentLoaded", () => {
             "phone-modal__action--primary",
             hasPhoneNumber,
         );
+    }
+
+    if (accountInfoAuthInput instanceof HTMLInputElement) {
+        // 인증 화면은 인라인 에러를 두지 않고 입력 상태와 버튼 활성화만 관리한다.
+        // 실패 안내는 아래 클릭 핸들러의 alert로 통일하고, 여기서는 현재 입력값에 맞는 UI 상태만 반영한다.
+        accountInfoAuthInput.addEventListener("focus", () => applyAccountInfoAuthState(accountInfoAuthRoute));
+        accountInfoAuthInput.addEventListener("blur", () => applyAccountInfoAuthState(accountInfoAuthRoute));
+        accountInfoAuthInput.addEventListener("input", () => applyAccountInfoAuthState(accountInfoAuthRoute));
+    }
+
+    if (accountInfoAuthButton instanceof HTMLButtonElement) {
+        // 계정 정보는 진입 전에 현재 비밀번호를 한 번 더 확인한다.
+        // submit 기반으로 폼 전체를 보내지 않고, join의 단계 이동 버튼처럼 클릭 한 번으로
+        // "입력값 확인 -> API 호출 -> 다음 상세 화면 이동"을 처리하는 쪽이 현재 프로젝트 스타일에 더 잘 맞는다.
+        accountInfoAuthButton.addEventListener("click", async () => {
+            if (!(accountInfoAuthInput instanceof HTMLInputElement)) {
+                return;
+            }
+
+            const password = accountInfoAuthInput.value.trim();
+            applyAccountInfoAuthState(accountInfoAuthRoute);
+
+            if (!password) {
+                return;
+            }
+
+            try {
+                const isMatched = await settingService.checkPassword(password);
+
+                if (!isMatched) {
+                    alert("비밀번호를 다시 확인하세요.");
+                    accountInfoAuthInput.value = "";
+                    applyAccountInfoAuthState(accountInfoAuthRoute);
+                    accountInfoAuthInput.focus();
+                    return;
+                }
+
+                // 민감한 입력값은 성공 직후 바로 비워서 화면에 남지 않게 한다.
+                accountInfoAuthInput.value = "";
+                activeDetailRoute = "account-info-list";
+                renderDetail();
+            } catch (error) {
+                alert(error.message || "비밀번호 확인 중 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    if (currentPasswordInput instanceof HTMLInputElement) {
+        currentPasswordInput.addEventListener("focus", () => applyPasswordEditorState(passwordEditRoute));
+        currentPasswordInput.addEventListener("blur", () => applyPasswordEditorState(passwordEditRoute));
+        currentPasswordInput.addEventListener("input", () => applyPasswordEditorState(passwordEditRoute));
+    }
+
+    if (nextPasswordInput instanceof HTMLInputElement) {
+        nextPasswordInput.addEventListener("focus", () => applyPasswordEditorState(passwordEditRoute));
+        nextPasswordInput.addEventListener("blur", () => applyPasswordEditorState(passwordEditRoute));
+        nextPasswordInput.addEventListener("input", () => applyPasswordEditorState(passwordEditRoute));
+    }
+
+    if (confirmPasswordInput instanceof HTMLInputElement) {
+        confirmPasswordInput.addEventListener("focus", () => applyPasswordEditorState(passwordEditRoute));
+        confirmPasswordInput.addEventListener("blur", () => applyPasswordEditorState(passwordEditRoute));
+        confirmPasswordInput.addEventListener("input", () => applyPasswordEditorState(passwordEditRoute));
+    }
+
+    if (passwordSaveButton instanceof HTMLButtonElement) {
+        // 비밀번호 변경은 이 버튼 한 곳에서만 처리한다.
+        // 현재 파일은 route별 동작을 큰 라우터로 추상화하기보다, 각 화면의 실질적인 저장/확인 버튼이
+        // 자기 책임을 직접 가지는 쪽이 읽기 쉽다. join의 next-button 흐름과도 같은 결이다.
+        passwordSaveButton.addEventListener("click", async () => {
+            if (
+                !(currentPasswordInput instanceof HTMLInputElement) ||
+                !(nextPasswordInput instanceof HTMLInputElement) ||
+                !(confirmPasswordInput instanceof HTMLInputElement)
+            ) {
+                return;
+            }
+
+            const currentPassword = currentPasswordInput.value.trim();
+            const nextPassword = nextPasswordInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value.trim();
+
+            applyPasswordEditorState(passwordEditRoute);
+
+            if (!currentPassword || !nextPassword || !confirmPassword) {
+                return;
+            }
+
+            // 길이와 확인 일치는 서버까지 보낼 필요가 없는 대표적인 프런트 검증이다.
+            // 사용자가 같은 화면에서 즉시 수정할 수 있게 가장 가까운 입력으로 포커스를 돌린다.
+            if (nextPassword.length < 8) {
+                alert("새 비밀번호 형식을 확인하세요.");
+                nextPasswordInput.focus();
+                return;
+            }
+
+            if (nextPassword !== confirmPassword) {
+                alert("비밀번호를 다시 확인하세요.");
+                confirmPasswordInput.value = "";
+                passwordChangeState.confirmPassword = "";
+                applyPasswordEditorState(passwordEditRoute);
+                confirmPasswordInput.focus();
+                return;
+            }
+
+            if (currentPassword === nextPassword) {
+                alert("현재 비밀번호와 다른 비밀번호를 입력하세요.");
+                nextPasswordInput.focus();
+                return;
+            }
+
+            try {
+                await settingService.updatePassword(currentPassword, nextPassword);
+
+                // 비밀번호가 바뀐 뒤 기존 세션을 유지하면 사용자는 "언제 재인증이 필요한지"를 헷갈릴 수 있다.
+                // 그래서 성공 시 즉시 로그아웃시키고, 이 프로젝트의 기본 비인증 진입점인 /member/join으로 보낸다.
+                alert("비밀번호가 변경되었습니다. 다시 로그인해 주세요.");
+
+                await settingService.logout();
+                window.location.href = "/member/join";
+            } catch (error) {
+                // 서버가 현재 비밀번호 오류를 반환한 경우에는 현재 비밀번호만 다시 받는다.
+                // 새 비밀번호/확인 입력은 사용자가 이미 맞춰둔 값일 수 있으므로 유지하는 편이 덜 번거롭다.
+                alert(error.message || "비밀번호 변경 중 오류가 발생했습니다.");
+                currentPasswordInput.value = "";
+                passwordChangeState.currentPassword = "";
+                applyPasswordEditorState(passwordEditRoute);
+                currentPasswordInput.focus();
+            }
+        });
     }
 
     function renderPhoneAddStep() {
@@ -1899,7 +2130,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (infoButton.dataset.accountInfoId === "username") {
-            usernameState.draft = usernameState.current;
             activeDetailRoute = "username-edit";
             renderDetail();
             return;
@@ -2391,6 +2621,17 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModal();
         }
     });
+
+    const passwordInputValue = document.querySelector(".detail-form__input").value;
+    const submitBtn = document.querySelector(".detail-form__button");
+    let identityDuplicateState = null; // null: 미검사, true: 사용가능, false: 중복
+    let identityChecking = false;
+
+
+    submitBtn.addEventListener("click", (e) => {
+
+    })
+
 
     applyAppearanceState();
     renderNavigation();

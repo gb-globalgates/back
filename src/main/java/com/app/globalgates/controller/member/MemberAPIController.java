@@ -5,6 +5,7 @@ import com.app.globalgates.auth.CustomUserDetails;
 import com.app.globalgates.auth.JwtTokenProvider;
 import com.app.globalgates.dto.MemberDTO;
 import com.app.globalgates.dto.MemberProfileFileDTO;
+import com.app.globalgates.dto.MemberSessionDTO;
 import com.app.globalgates.service.MemberService;
 import com.app.globalgates.service.S3Service;
 import java.io.IOException;
@@ -134,8 +135,8 @@ public class MemberAPIController {
     @GetMapping("info")
     public MemberDTO getUserInfo(HttpServletRequest request) {
         String token = jwtTokenProvider.parseTokenFromHeader(request);
-        String memberEmail = jwtTokenProvider.getUsername(token);
-        MemberDTO memberDTO = memberService.getMember(memberEmail);
+        String userName = jwtTokenProvider.getUsername(token);
+        MemberDTO memberDTO = memberService.getMember(userName);
 
         return memberDTO;
     }

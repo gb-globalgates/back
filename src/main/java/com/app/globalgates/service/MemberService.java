@@ -178,10 +178,60 @@ public class MemberService {
         return memberDAO.findMemberByMemberPhone(memberPhone).isEmpty();
     }
 
+    // 현재 로그인한 사용자의 raw password가 DB의 encoded password와 일치하는지 검사한다.
+    // 기존 "중복검사" 계열 메서드와 달리, 이 메서드는 인증 성공 여부를 그대로 true/false로 돌려준다.
+    public boolean checkPassword(String loginId, String memberPassword){
+        MemberDTO member = memberDAO.findMemberByLoginId(loginId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        return passwordEncoder.matches(memberPassword, member.getMemberPassword());
+    }
+
+    @Transactional
+    public void updatePassword(String loginId, String currentPassword, String nextPassword) {
+        MemberDTO member = memberDAO.findMemberByLoginId(loginId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        if (!passwordEncoder.matches(currentPassword, member.getMemberPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호를 다시 확인하세요.");
+        }
+
+        memberDAO.updatePassword(member.getId(), passwordEncoder.encode(nextPassword));
+    }
     //  handle 검사(true : 사용가능)
     public boolean checkHandle(String memberHandle){
         // DB에는 @가 포함된 형태로 저장되므로 조회 시에도 동일한 형태로 맞춘다.
         return memberDAO.findMemberByMemberHandle("@" + memberHandle).isEmpty();
+    }
+
+    @Transactional
+    public void updateHandle(String loginId, String memberHandle) {
+        MemberDTO member = memberDAO.findMemberByLoginId(loginId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        // 입력창은 @ 없이 raw handle만 다루고, DB 저장 직전에만 프로젝트 저장 포맷으로 맞춘다.
+        String normalizedHandle = memberHandle == null ? "" : memberHandle.trim().replaceFirst("^@+", "");
+
+        if (normalizedHandle.isEmpty()) {
+            throw new IllegalArgumentException("아이디를 입력하세요.");
+        }
+
+        if (!normalizedHandle.matches("^[a-z0-9_]{4,15}$")) {
+            throw new IllegalArgumentException("영문 소문자, 숫자, 밑줄(_) 4~15자만 사용할 수 있습니다.");
+        }
+
+        String savedHandle = "@" + normalizedHandle;
+
+        // 현재 본인 값과 같으면 중복이나 저장 오류로 보지 않고 그대로 통과시킨다.
+        if (savedHandle.equals(member.getMemberHandle())) {
+            return;
+        }
+
+        if (memberDAO.findMemberByMemberHandle(savedHandle).isPresent()) {
+            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        }
+
+        memberDAO.updateHandle(member.getId(), savedHandle);
     }
 
     //    로그인

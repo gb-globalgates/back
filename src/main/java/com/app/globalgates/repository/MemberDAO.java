@@ -37,6 +37,10 @@ public class MemberDAO {
     public Optional<MemberDTO> findMemberByMemberPhone(String memberPhone){
         return memberMapper.selectMemberByMemberPhone(memberPhone);
     }
+    //  비밀번호 유효성 검사
+    public Optional<MemberDTO> findMemberByMemberPassword(String loginId, String memberPassword){
+        return memberMapper.selectMemberByMemberPassword(loginId, memberPassword);
+    }
     //  닉네임 또는 핸들로 회원 검색
     public List<MemberDTO> findMembersByKeyword(String keyword) {
         return memberMapper.selectMembersByKeyword(keyword);
@@ -64,6 +68,14 @@ public class MemberDAO {
     //  프로필 수정
     public void update(MemberDTO memberDTO){
         memberMapper.update(memberDTO);
+    }
+    //  비밀번호 변경
+    public void updatePassword(Long memberId, String memberPassword) {
+        memberMapper.updatePassword(memberId, memberPassword);
+    }
+    //  handle 변경
+    public void updateHandle(Long memberId, String memberHandle) {
+        memberMapper.updateHandle(memberId, memberHandle);
     }
 //  Handle로 조회 (간소화 - 차단용)
     public Optional<MemberDTO> findByHandle(String memberHandle) {
