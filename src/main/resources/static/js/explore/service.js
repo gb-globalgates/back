@@ -168,9 +168,26 @@ const exploreService = (() => {
     };
 
     // 북마크 체크
-    const checkBookmark = async (postId) => {
+    const checkBookmark = async (postId, folderId = null) => {
+        const response = await fetch(`/api/explore/bookmarks`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                postId: Number(postId),
+                folderId: folderId
+            })
+        });
 
-    }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Fetch error");
+        }
+
+        return await response.text();
+    };
 
 
 
@@ -187,5 +204,6 @@ const exploreService = (() => {
         deleteAllKeywords: deleteAllKeywords,
         checkFollow: checkFollow,
         toggleLike: toggleLike,
+        checkBookmark: checkBookmark,
     };
 })();

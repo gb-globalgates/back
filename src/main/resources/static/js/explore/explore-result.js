@@ -1035,16 +1035,26 @@ window.onload = () => {
         });
 
         // Bookmark 버튼
-        document.querySelectorAll(".tweet-action-btn--bookmark").forEach((bookmarkButton) => {
-            const path = bookmarkButton.querySelector("svg path");
-            if (!path) {
-                return;
-            }
-            let isBookmarked = false;
-            bookmarkButton.addEventListener("click", (e) => {
-                isBookmarked = !isBookmarked;
-                setBookmarkButtonState(bookmarkButton, isBookmarked);
-                showToast(isBookmarked ? "북마크에 저장되었습니다." : "북마크가 해제되었습니다.");
+        ["popularSection", "latestSection"].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            section.addEventListener("click", async (e) => {
+                const bookmarkBtn = e.target.closest(".tweet-action-btn--bookmark");
+                if (!bookmarkBtn) return;
+
+                const postId = bookmarkBtn.dataset.postId;
+                if (!postId) return;
+
+                try {
+                    const result = await exploreService.checkBookmark(postId);
+                    const isBookmarked = result.includes("등록");
+                    setBookmarkButtonState(bookmarkBtn, isBookmarked);
+                    showToast(isBookmarked ? "북마크에 저장되었습니다." : "북마크가 해제되었습니다.");
+                } catch (err) {
+                    console.error("북마크 요청 실패:", err);
+                    showToast("오류가 발생했습니다. 다시 시도해주세요.");
+                }
             });
         });
 
