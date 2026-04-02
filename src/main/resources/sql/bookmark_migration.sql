@@ -8,8 +8,14 @@
 
 
 alter table tbl_bookmark add constraint uq_bookmark_member_post unique (member_id, post_id);
-
+select * from tbl_member;
 select * from tbl_follow;
 select * from tbl_bookmark;
 select * from tbl_post;
 select * from tbl_bookmark_folder;
+select * from tbl_post;
+
+UPDATE tbl_member
+SET member_role = 'admin', updated_datetime = now()
+WHERE member_email = 'tedwin1@kakao.com';
+
