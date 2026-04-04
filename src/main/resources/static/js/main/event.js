@@ -1859,6 +1859,11 @@ window.onload = () => {
                 });
             });
         }
+        document.getElementById("accountLogoutButton").addEventListener("click", (e) => {
+            e.preventDefault();
+            service.logout();
+            location.href = "/member/join"
+        })
     }
 
     load();

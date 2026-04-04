@@ -33,6 +33,15 @@ const myPageService = (() => {
         return data;
     };
 
+    // Replies 탭도 Posts / Likes와 같은 페이징 계약을 사용한다.
+    const getMyReplies = async (page, callback) => {
+        const response = await fetch(`/api/mypage/replies?page=${page}`);
+        const data = await response.json();
+
+        if (callback) return callback(data);
+        return data;
+    };
+
     // Likes 탭도 Posts 탭과 같은 PostWithPagingDTO 구조를 사용한다.
     // 따라서 프런트 서비스 계층에서는 엔드포인트만 다르고, 소비 방식은 동일하게 유지한다.
     const getMyLikedPosts = async (page, callback) => {
@@ -100,6 +109,7 @@ const myPageService = (() => {
         writeProduct: writeProduct,
         getMyProducts: getMyProducts,
         getMyPosts: getMyPosts,
+        getMyReplies: getMyReplies,
         getMyLikedPosts: getMyLikedPosts,
         deleteProduct: deleteProduct,
         updateProfile: updateProfile,

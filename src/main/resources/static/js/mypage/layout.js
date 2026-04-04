@@ -310,6 +310,28 @@ const mypageLayout = (() => {
         }
     };
 
+    const showMyReplyList = (postWithPagingDTO, page) => {
+        const replySection = document.querySelector(".Profile-Content.Replies .Profile-Content-List");
+        if (!replySection) return;
+
+        const posts = postWithPagingDTO?.posts ?? [];
+        const html = posts.map(createMyPostCard).join("");
+
+        if (posts.length === 0 && page === 1) {
+            replySection.innerHTML = `
+              <p class="feedEmpty" style="padding: 20px; text-align: center; color: #536471;">
+                  작성한 답글이 없습니다.
+              </p>`;
+            return;
+        }
+
+        if (page === 1) {
+            replySection.innerHTML = html;
+        } else {
+            replySection.innerHTML += html;
+        }
+    };
+
     const showMyLikedPostList = (postWithPagingDTO, page) => {
         // Likes 탭은 카드 구조를 새로 만들지 않고 Posts 탭과 같은 렌더러를 재사용한다.
         // 이렇게 하면 첨부파일, 해시태그, 액션 버튼, 이미지 레이아웃 규칙이 한 군데에서 유지된다.
@@ -338,6 +360,7 @@ const mypageLayout = (() => {
     return {
         showMyProductList: showMyProductList,
         showMyPostList: showMyPostList,
+        showMyReplyList: showMyReplyList,
         showMyLikedPostList: showMyLikedPostList
     };
 })();
