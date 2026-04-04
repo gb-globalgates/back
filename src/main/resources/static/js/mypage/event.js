@@ -1967,6 +1967,10 @@ window.onload = function () {
     let myPostCheckScroll = true;
     let myPostHasMore = true;
     let myPostLoaded = false;
+    let myReplyPage = 1;
+    let myReplyCheckScroll = true;
+    let myReplyHasMore = true;
+    let myReplyLoaded = false;
     let myProductPage = 1;
     let myProductCheckScroll = true;
     let myProductHasMore = true;
@@ -2040,6 +2044,15 @@ window.onload = function () {
 
             if (nav.classList.contains("Replies")) {
                 activeProfileTab = "Replies";
+
+                // Replies 탭도 다른 목록 탭과 같은 규칙으로 첫 진입 시에만 1페이지를 로드한다.
+                if (!myReplyLoaded) {
+                    myPageService.getMyReplies(myReplyPage, (data) => {
+                        mypageLayout.showMyReplyList(data, myReplyPage);
+                        myReplyHasMore = data.criteria.hasMore;
+                    });
+                    myReplyLoaded = true;
+                }
             }
 
             if (nav.classList.contains("MyProducts")) {
@@ -2094,6 +2107,20 @@ window.onload = function () {
 
             setTimeout(() => {
                 myPostCheckScroll = true;
+            }, 1000);
+        }
+
+        if (activeProfileTab === "Replies" && myReplyCheckScroll && myReplyHasMore) {
+            myReplyCheckScroll = false;
+            myReplyPage++;
+
+            myPageService.getMyReplies(myReplyPage, (data) => {
+                mypageLayout.showMyReplyList(data, myReplyPage);
+                myReplyHasMore = data.criteria.hasMore;
+            });
+
+            setTimeout(() => {
+                myReplyCheckScroll = true;
             }, 1000);
         }
 

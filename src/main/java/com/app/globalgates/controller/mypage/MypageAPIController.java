@@ -94,6 +94,31 @@ public class MypageAPIController {
         return result;
     }
 
+    // Replies 탭도 Posts / Likes와 같은 PostDTO 구조를 사용한다.
+    // 마이페이지에서는 "내가 작성한 댓글"만 별도 조건으로 조회하고,
+    // 화면 렌더는 동일한 카드 컴포넌트를 재사용한다.
+    @GetMapping("/replies")
+    public PostWithPagingDTO getMyReplies(
+            @RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        PostWithPagingDTO result = postService.getMyReplies(page, userDetails.getId());
+
+        // 댓글 목록도 게시글 카드와 같은 첨부파일 구조를 가지므로,
+        // 브라우저가 직접 쓸 수 있도록 presigned URL로 가공해서 내려준다.
+        result.getPosts().forEach(post -> {
+            if (post.getPostFiles() == null || post.getPostFiles().isEmpty()) {
+                return;
+            }
+
+            post.getPostFiles().forEach(file ->
+                    file.setFilePath(toPresignedUrlOrOriginal(file.getFilePath()))
+            );
+        });
+
+        return result;
+    }
+
     // Likes 탭도 Posts 탭과 같은 PostDTO 구조를 사용한다.
     // 화면은 동일한 카드 컴포넌트를 재사용하고,
     // 데이터만 "내가 좋아요한 게시글"로 바꿔 내려주는 방식이 유지보수에 가장 유리하다.
