@@ -37,7 +37,6 @@ create table tbl_member (
     member_name       varchar(255),
     member_email      varchar(255)  not null unique,
     member_password   varchar(255),
-    member_nickname   varchar(255),
     member_handle     varchar(255)  unique not null,
     member_phone      varchar(255),
     member_bio        text,
@@ -489,21 +488,21 @@ create table tbl_trending (
 
 -- [62] tbl_notification_preference
 create table tbl_notification_preference (
-    id                     bigint  generated always as identity primary key,
-    member_id              bigint  not null,
-    push_enabled           boolean not null default true,
-    filter_non_connect     boolean not null default false,
-    filter_non_approve     boolean not null default false,
-    filter_non_like        boolean not null default false,
-    filter_non_post        boolean not null default false,
-    filter_non_reply       boolean not null default false,
-    filter_non_message     boolean not null default false,
-    filter_non_estimation  boolean not null default false,
-    filter_non_system      boolean not null default false,
-    filter_non_handle      boolean not null default false,
-    created_datetime       timestamp not null default now(),
-    updated_datetime       timestamp not null default now(),
-    constraint fk_notification_preference_member foreign key(member_id) references tbl_member(id)
+     id bigint generated always as identity primary key,
+     member_id bigint not null unique,
+     push_connect boolean not null default true,
+     push_expert boolean not null default true,
+     push_likes boolean not null default true,
+     push_posts boolean not null default true,
+     push_comments boolean not null default true,
+     push_chat_messages boolean not null default true,
+     push_quotes boolean not null default true,
+     push_system boolean not null default true,
+     push_mentions boolean not null default true,
+     created_datetime timestamp not null default now(),
+     updated_datetime timestamp not null default now(),
+     constraint fk_notification_preference_member
+     foreign key(member_id) references tbl_member(id)
 );
 
 -- [63] tbl_block

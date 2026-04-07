@@ -258,25 +258,6 @@ const settingService = (() => {
         return result;
     };
 
-    // quality filter와 뮤트 조건은 같은 설정 묶음으로 저장한다.
-    const updateNotificationFilter = async (payload) => {
-        const response = await fetch("/api/settings/notifications/filter", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || "알림 필터 저장 실패");
-        }
-
-        return result;
-    };
-
     // 개별 푸시 종류 체크 상태는 master on/off와 분리해 별도 저장한다.
     const updateNotificationPushPreference = async (payload) => {
         const response = await fetch("/api/settings/notifications/push-preferences", {
@@ -296,6 +277,86 @@ const settingService = (() => {
         return result;
     };
 
+    // 국가는 설정 화면의 단일 선택값만 저장하면 되므로 라벨 문자열 하나만 전달한다.
+    const updateCountry = async (memberCountry) => {
+        const response = await fetch("/api/settings/country", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                memberCountry: memberCountry,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "국가 저장 실패");
+        }
+
+        return result;
+    };
+
+    const getBlockedAccounts = async (page = 1) => {
+        const response = await fetch(`/api/settings/blocks/list/${page}`);
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "차단한 계정 목록 조회 실패");
+        }
+
+        return result;
+    };
+
+    const unblockMember = async (blockerId, blockedId) => {
+        const response = await fetch(
+            `/api/v1/blocks?blockerId=${blockerId}&blockedId=${blockedId}`,
+            {
+                method: "DELETE",
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error("차단 해제 실패");
+        }
+    };
+
+    // setting의 구독 관리는 기존 subscription API를 그대로 재사용한다.
+    const getSubscription = async () => {
+        const response = await fetch("/api/subscriptions/my");
+
+        if (!response.ok) {
+            throw new Error("구독 정보 조회 실패");
+        }
+
+        const text = await response.text();
+
+        if (!text || !text.trim()) {
+            return null;
+        }
+
+        return JSON.parse(text);
+    };
+
+    // 월간 구독 해지는 subscription 도메인의 기존 cancel API에 위임한다.
+    const cancelSubscription = async (id) => {
+        const response = await fetch("/api/subscriptions/cancel", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: id,
+            }),
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "구독 해지 실패");
+        }
+    };
+
     return {
         checkPassword: checkPassword,
         updatePassword: updatePassword,
@@ -311,7 +372,11 @@ const settingService = (() => {
         updateLanguage: updateLanguage,
         deactivateAccount: deactivateAccount,
         updateNotificationPushEnabled: updateNotificationPushEnabled,
-        updateNotificationFilter: updateNotificationFilter,
         updateNotificationPushPreference: updateNotificationPushPreference,
+        updateCountry: updateCountry,
+        getBlockedAccounts: getBlockedAccounts,
+        unblockMember: unblockMember,
+        getSubscription: getSubscription,
+        cancelSubscription: cancelSubscription,
     };
 })();

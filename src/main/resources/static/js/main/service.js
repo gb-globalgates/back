@@ -192,18 +192,39 @@ const service = (() => {
         });
     };
 
+    const logout = async () => {
+        const response = await fetch("/api/auth/logout", {
+            method: "POST",
+        });
+
+        if (!response.ok) {
+            throw new Error("로그아웃 실패");
+        }
+    };
+
+    const searchMentionMembers = async (keyword, memberId) => {
+        console.log("멘션검색 들어옴1 keyword:", keyword);
+        const response = await fetch(`/api/main/mentions/search?keyword=${encodeURIComponent(keyword)}&memberId=${memberId}`);
+        const data = await response.json();
+        console.log("멘션검색 들어옴2 결과수:", data.length);
+        return data;
+    };
+
     return {
-        getPostList, getExpertList, getPost, writePost, updatePost, deletePost,
-        addLike, deleteLike,
-        addBookmark, deleteBookmark,
-        follow, unfollow, getFollowings,
-        block, report,
-        writeReply,
-        getLatestNews,
-        searchMembers, getSearchHistories, saveSearchHistory, deleteSearchHistory, deleteAllSearchHistories,
-        getMyProducts,
-        getSuggestions,
-        getAds,
-        savePostTemp, getPostTemps, loadPostTemp, deletePostTemp, deletePostTemps
+        getPostList: getPostList, getExpertList: getExpertList, getPost: getPost, writePost: writePost, updatePost: updatePost, deletePost: deletePost,
+        addLike: addLike, deleteLike: deleteLike,
+        addBookmark: addBookmark, deleteBookmark: deleteBookmark,
+        follow: follow, unfollow: unfollow, getFollowings: getFollowings,
+        block: block, report: report,
+        writeReply: writeReply,
+        getLatestNews: getLatestNews,
+        searchMembers: searchMembers, getSearchHistories: getSearchHistories, saveSearchHistory: saveSearchHistory, deleteSearchHistory: deleteSearchHistory, deleteAllSearchHistories: deleteAllSearchHistories,
+        getMyProducts: getMyProducts,
+        getSuggestions: getSuggestions,
+        getAds: getAds,
+        savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps,
+        logout: logout
+        savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps,
+        searchMentionMembers: searchMentionMembers
     };
 })();

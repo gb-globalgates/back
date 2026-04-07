@@ -112,9 +112,13 @@ textarea {
     justify-content: center;
     width: fit-content;
     height: fit-content;
-    padding: 12px;
     border-radius: 9999px;
     align-self: center;
+}
+
+.nav-logo img {
+    width: 48px;
+    height: 48px;
 }
 
 .nav-logo:hover {
@@ -281,9 +285,7 @@ textarea {
     flex-direction: column;
     background-color: #ffffff;
     border-radius: 12px;
-    box-shadow:
-            rgba(101, 119, 134, 0.2) 0 0 15px 0,
-            rgba(101, 119, 134, 0.15) 0 0 3px 1px;
+    box-shadow: rgba(101, 119, 134, 0.2) 0 0 15px 0, rgba(101, 119, 134, 0.15) 0 0 3px 1px;
     overflow: hidden;
     max-width: 400px;
     width: max-content;
@@ -1212,6 +1214,7 @@ a.menu-item:visited {
 .tweet-modal__composer {
     display: flex;
     gap: 12px;
+    height: 65px;
     align-items: flex-start;
     padding: 6px 0 6px;
 }
@@ -2732,7 +2735,7 @@ input.tweet-modal__location-display-text-inner {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    min-height: 116px;
+    height: 65px;
     padding: 6px 0 12px;
 }
 
@@ -3511,7 +3514,7 @@ input.tweet-modal__location-display-text-inner {
     transform: rotate(45deg) translateY(-1px);
 }
 
-/* The board menu is a small dropdown attached to the audience button. */
+ /* 커뮤니티드롭다운 */
 .boardMenu {
     position: fixed;
     top: 16px;
@@ -3775,6 +3778,13 @@ input.tweet-modal__location-display-text-inner {
     font-weight: 700;
     color: #1d9bf0;
     font-size: 16px;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .user-info {

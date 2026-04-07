@@ -82,13 +82,22 @@ const service = (() => {
         return data;
     };
 
+    const searchMentionMembers = async (keyword, memberId) => {
+        console.log("멘션검색 들어옴1 keyword:", keyword);
+        const response = await fetch(`/api/main/mentions/search?keyword=${encodeURIComponent(keyword)}&memberId=${memberId}`);
+        const data = await response.json();
+        console.log("멘션검색 들어옴2 결과:", data.length);
+        return data;
+    };
+
     return {
-        addLike, deleteLike,
-        addBookmark, deleteBookmark,
-        follow, unfollow,
-        block, report,
-        writeReply, getReplies,
-        deletePost,
-        getFollowings
+        addLike: addLike, deleteLike: deleteLike,
+        addBookmark: addBookmark, deleteBookmark: deleteBookmark,
+        follow: follow, unfollow: unfollow,
+        block: block, report: report,
+        writeReply: writeReply, getReplies: getReplies,
+        deletePost: deletePost,
+        getFollowings: getFollowings,
+        searchMentionMembers: searchMentionMembers
     };
 })();
