@@ -2564,9 +2564,12 @@ window.onload = function () {
             button.dataset.bound = "true";
             const path = button.querySelector("path"),
                 count = button.querySelector(".tweet-action-count");
-            button.addEventListener("click", (e) => {
+            button.addEventListener("click", async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                const article = button.closest("[data-target-id]");
+                const postId = article?.dataset.targetId;
+                if (!postId || !MEMBER_ID) return;
                 const isActive = button.classList.toggle("active");
                 if (!path || !count) return;
                 button.setAttribute("data-testid", isActive ? "unlike" : "like");
@@ -2579,6 +2582,11 @@ window.onload = function () {
                     isActive ? path.dataset.pathActive : path.dataset.pathInactive,
                 );
                 count.textContent = isActive ? "1" : "";
+                if (isActive) {
+                    await NotificationService.addLike(MEMBER_ID, postId);
+                } else {
+                    await NotificationService.deleteLike(MEMBER_ID, postId);
+                }
             });
         });
 
@@ -2588,13 +2596,19 @@ window.onload = function () {
             .forEach((button) => {
                 if (button.dataset.bound) return;
                 button.dataset.bound = "true";
-                button.addEventListener("click", (e) => {
+                button.addEventListener("click", async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setBookmarkButtonState(
-                        button,
-                        !button.classList.contains("active"),
-                    );
+                    const article = button.closest("[data-target-id]");
+                    const postId = article?.dataset.targetId;
+                    if (!postId || !MEMBER_ID) return;
+                    const willActivate = !button.classList.contains("active");
+                    setBookmarkButtonState(button, willActivate);
+                    if (willActivate) {
+                        await NotificationService.addBookmark(MEMBER_ID, postId);
+                    } else {
+                        await NotificationService.deleteBookmark(MEMBER_ID, postId);
+                    }
                 });
             });
 
@@ -2938,9 +2952,29 @@ window.onload = function () {
         replyTagSearchInput?.focus();
     });
 
-    // 답글 제출 버튼 클릭 시 답글 수를 증가시키고 모달을 닫는다
-    replySubmitButton?.addEventListener("click", () => {
+    // 답글 제출 버튼 클릭 시 API 호출 후 답글 수를 증가시키고 모달을 닫는다
+    replySubmitButton?.addEventListener("click", async () => {
         if (!activeReplyTrigger || replySubmitButton.disabled) return;
+        const article = activeReplyTrigger.closest("[data-target-id]");
+        const postId = article?.dataset.targetId;
+        if (!postId || !MEMBER_ID || !replyEditor) return;
+
+        const formData = new FormData();
+        formData.append("memberId", MEMBER_ID);
+        formData.append("postContent", replyEditor.textContent);
+
+        // 첨부 파일
+        if (attachedReplyFiles && attachedReplyFiles.length > 0) {
+            attachedReplyFiles.forEach(f => formData.append("files", f));
+        }
+
+        // 멘션 핸들 수집
+        const mentionHandles = collectMentionHandles(replyEditor);
+        mentionHandles.forEach((h, i) => {
+            formData.append(`mentionedHandles[${i}]`, h);
+        });
+
+        await NotificationService.writeReply(postId, formData);
         updateReplyCount(activeReplyTrigger);
         closeReplyModal({skipConfirm: true});
     });
@@ -3201,6 +3235,157 @@ window.onload = function () {
             if (replyProductButton) replyProductButton.disabled = false;
         });
         replyEditor.parentElement?.appendChild(card);
+    }
+
+    // ===== 9. 멘션 기능 =====
+    // 에디터에서 멘션 핸들(@handle) 목록을 수집한다
+    function collectMentionHandles(editor) {
+        const mentions = editor.querySelectorAll('.mention-tag');
+        const handles = [];
+        mentions.forEach((m) => {
+            const handle = m.dataset.handle;
+            if (handle && !handles.includes(handle)) handles.push(handle);
+        });
+        return handles;
+    }
+
+    // 멘션 드롭다운 셋업: 에디터에서 @ 입력 시 사용자 검색 + 선택
+    function setupMention(editor) {
+        if (!editor) return;
+        let mentionMode = false;
+        let mentionQuery = '';
+        let mentionActiveIndex = 0;
+        let mentionResults = [];
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'mention-dropdown off';
+        document.body.appendChild(dropdown);
+
+        editor.addEventListener('input', async () => {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const textNode = range.startContainer;
+            if (textNode.nodeType !== Node.TEXT_NODE) { closeMentionDropdown(); return; }
+
+            const text = textNode.textContent;
+            const cursorPos = range.startOffset;
+            const beforeCursor = text.substring(0, cursorPos);
+            const atIndex = beforeCursor.lastIndexOf('@');
+
+            if (atIndex === -1 || (atIndex > 0 && beforeCursor[atIndex - 1] !== ' ' && beforeCursor[atIndex - 1] !== '\n')) {
+                closeMentionDropdown(); return;
+            }
+
+            const query = beforeCursor.substring(atIndex + 1);
+            if (query.includes(' ')) { closeMentionDropdown(); return; }
+
+            mentionMode = true;
+            mentionQuery = query;
+
+            if (query.length === 0) { closeMentionDropdown(); return; }
+
+            const members = await NotificationService.searchMentionMembers(query, MEMBER_ID);
+            mentionResults = members;
+            mentionActiveIndex = 0;
+
+            if (members.length === 0) { closeMentionDropdown(); return; }
+
+            dropdown.innerHTML = buildMentionDropdownHTML(members);
+            const cursorRect = range.getBoundingClientRect();
+            const editorRect = editor.getBoundingClientRect();
+            dropdown.style.left = editorRect.left + 'px';
+            dropdown.style.top = (cursorRect.bottom + 4) + 'px';
+            dropdown.style.bottom = 'auto';
+            dropdown.classList.remove('off');
+
+            dropdown.querySelectorAll('.mention-item').forEach((item, idx) => {
+                item.addEventListener('mousedown', (e) => { e.preventDefault(); selectMention(idx); });
+            });
+        });
+
+        editor.addEventListener('keydown', (e) => {
+            if (!mentionMode || dropdown.classList.contains('off')) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); mentionActiveIndex = Math.min(mentionActiveIndex + 1, mentionResults.length - 1); updateActiveItem(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); mentionActiveIndex = Math.max(mentionActiveIndex - 1, 0); updateActiveItem(); }
+            else if (e.key === 'Enter') { e.preventDefault(); selectMention(mentionActiveIndex); }
+            else if (e.key === 'Escape') { closeMentionDropdown(); }
+        });
+
+        function updateActiveItem() {
+            dropdown.querySelectorAll('.mention-item').forEach((item, idx) => {
+                item.classList.toggle('active', idx === mentionActiveIndex);
+                if (idx === mentionActiveIndex) item.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        function selectMention(index) {
+            const member = mentionResults[index];
+            if (!member) return;
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const textNode = range.startContainer;
+            if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+            const text = textNode.textContent;
+            const cursorPos = range.startOffset;
+            const beforeCursor = text.substring(0, cursorPos);
+            const atIndex = beforeCursor.lastIndexOf('@');
+            const before = text.substring(0, atIndex);
+            const after = text.substring(cursorPos);
+
+            textNode.textContent = before;
+
+            const mentionSpan = document.createElement('span');
+            mentionSpan.className = 'mention-tag';
+            mentionSpan.contentEditable = 'false';
+            mentionSpan.dataset.handle = member.memberHandle;
+            mentionSpan.dataset.memberId = member.id;
+            mentionSpan.textContent = member.memberHandle;
+
+            const afterNode = document.createTextNode('\u00A0' + after);
+            const parent = textNode.parentNode;
+            const nextSibling = textNode.nextSibling;
+            parent.insertBefore(mentionSpan, nextSibling);
+            parent.insertBefore(afterNode, mentionSpan.nextSibling);
+
+            const newRange = document.createRange();
+            newRange.setStart(afterNode, 1);
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+
+            closeMentionDropdown();
+            editor.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function closeMentionDropdown() {
+            mentionMode = false;
+            mentionQuery = '';
+            mentionResults = [];
+            dropdown.classList.add('off');
+            dropdown.innerHTML = '';
+        }
+    }
+
+    // 멘션 드롭다운 HTML 생성
+    function buildMentionDropdownHTML(members) {
+        return members.map((m, i) => {
+            const profileImg = m.profileFileName || '/images/profile/default_image.png';
+            return `<button type="button" class="mention-item${i === 0 ? ' active' : ''}" data-handle="${m.memberHandle}" data-member-id="${m.id}">
+                <img class="mention-item-avatar" src="${profileImg}" alt="" onerror="this.src='/images/profile/default_image.png'">
+                <div class="mention-item-info">
+                    <span class="mention-item-name">${m.memberName || m.memberHandle}</span>
+                    <span class="mention-item-handle">${m.memberHandle}</span>
+                </div>
+            </button>`;
+        }).join('');
+    }
+
+    // 답글 에디터에 멘션 기능 연결
+    if (replyEditor) {
+        setupMention(replyEditor);
     }
 
 };

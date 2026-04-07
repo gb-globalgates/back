@@ -50,6 +50,43 @@ const NotificationService = (function () {
         return request(`${BASE}/${recipientId}/unread-count`);
     }
 
+    // ── 게시물 액션 API (기존 MainAPIController 재사용) ──
+    async function addLike(memberId, postId) {
+        await fetch('/api/main/likes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId, postId })
+        });
+    }
+
+    async function deleteLike(memberId, postId) {
+        await fetch(`/api/main/likes/members/${memberId}/posts/${postId}/delete`, { method: 'POST' });
+    }
+
+    async function addBookmark(memberId, postId) {
+        await fetch('/api/main/bookmarks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId, postId })
+        });
+    }
+
+    async function deleteBookmark(memberId, postId) {
+        await fetch(`/api/main/bookmarks/members/${memberId}/posts/${postId}/delete`, { method: 'POST' });
+    }
+
+    async function writeReply(postId, formData) {
+        await fetch(`/api/main/posts/${postId}/replies`, {
+            method: 'POST',
+            body: formData
+        });
+    }
+
+    async function searchMentionMembers(keyword, memberId) {
+        const response = await fetch(`/api/main/mentions/search?keyword=${encodeURIComponent(keyword)}&memberId=${memberId}`);
+        return await response.json();
+    }
+
     // ── 시간 포맷 ──
     function formatTime(datetimeStr) {
         if (!datetimeStr) return "";
@@ -168,7 +205,7 @@ const NotificationService = (function () {
 
         return `
         <article class="notif-tweet-item" role="article" tabindex="0"
-                 data-testid="tweet" data-notif-type="mention" data-notif-id="${n.id}"${hrefAttr}>
+                 data-testid="tweet" data-notif-type="mention" data-notif-id="${n.id}" data-target-id="${n.targetId || ''}"${hrefAttr}>
             <div class="notif-item__inner">
                 <div class="tweet-body">
                     <div class="tweet-header">
@@ -266,5 +303,11 @@ const NotificationService = (function () {
         loadAll,
         loadMentions,
         renderList,
+        addLike,
+        deleteLike,
+        addBookmark,
+        deleteBookmark,
+        writeReply,
+        searchMentionMembers,
     };
 })();
