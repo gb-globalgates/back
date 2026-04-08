@@ -212,7 +212,8 @@ create type post_status as enum (
 
 
 alter table tbl_post
-    alter column title drop not null;
+alter column title drop not null;
+ALTER TABLE tbl_post ADD COLUMN IF NOT EXISTS product_id bigint;
 -- 게시글 (게시물 + 댓글 대댓글 : reply_post_id)
 create table tbl_post (
 id             bigint          generated always as identity primary key,  -- pk | 게시글 고유 id (자동 증가)
@@ -222,6 +223,7 @@ title          varchar(255),                            -- 게시글 제목 (상
 content        text            not null,                         -- 게시글 본문 내용
 location       varchar(255),                                     -- 위치 태그 (post-detailed 페이지 표시)
 reply_post_id  bigint,
+product_id bigint,
 created_datetime     timestamp       not null default now(),
 updated_datetime     timestamp       not null default now(),
 constraint fk_post_member foreign key(member_id)
@@ -234,16 +236,19 @@ select * from tbl_post_product;
 -- [13] tbl_post_product -- 게시물 (상품)
 alter table tbl_post_product
 add column product_category_id bigint not null;
+
 create table tbl_post_product (
 id         bigint    primary key,                -- pk | 댓글 고유 id (자동 증가)
 product_price int   not null,
 product_stock int not null,
+product_category_id bigint not null,
 created_datetime timestamp not null default now(),
 updated_datetime timestamp not null default now(),
 constraint fk_post_comment_post foreign key(id)
 references tbl_post(id)
 );
 
+select * from tbl_post_product;
 
 -- [14] tbl_post_hashtag  ─ 해시태그 목록
 create table tbl_post_hashtag (

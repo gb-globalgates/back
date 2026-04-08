@@ -151,6 +151,7 @@ create table tbl_post (
     content          text        not null,
     location         varchar(255),
     reply_post_id    bigint,
+    product_id bigint,
     created_datetime timestamp   not null default now(),
     updated_datetime timestamp   not null default now(),
     constraint fk_post_member foreign key(member_id) references tbl_member(id),
