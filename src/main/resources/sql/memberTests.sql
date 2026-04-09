@@ -105,3 +105,4 @@ insert into tbl_oauth (
 
 
 
+select * from tbl_subscription;

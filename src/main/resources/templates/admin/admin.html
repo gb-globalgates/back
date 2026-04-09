@@ -89,7 +89,7 @@
 
         </nav>
         <div class="go-main">
-            <a href="../admin.html">메인으로</a>
+            <a href="/main/main">메인으로</a>
         </div>
     </aside>
 
@@ -102,6 +102,12 @@
                 <div class="nw-module-header">
                     <div class="nw-module-title">회원 관리</div>
                     <div class="nw-module-header-actions">
+                        <select class="filter-select" id="filterMemberSubscription">
+                            <option value="all">구독상태 전체</option>
+                            <option value="subscribed">구독중</option>
+                            <option value="expired">구독만료</option>
+                            <option value="none">미구독</option>
+                        </select>
                         <select class="filter-select" id="filterMemberGrade">
                             <option value="all">등급 전체</option>
                             <option value="free">free</option>
@@ -180,6 +186,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="memberPagination"></div>
             </div>
         </div>
 
@@ -300,6 +307,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="postPagination"></div>
             </div>
         </div>
 
@@ -402,6 +410,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="reportMemberPagination"></div>
             </div>
         </div>
 
@@ -580,6 +589,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="reportPostPagination"></div>
             </div>
         </div>
 
@@ -678,35 +688,35 @@
             <div class="stats-data-grid">
                 <div class="stats-data-card">
                     <div class="stats-data-label">총 회원수</div>
-                    <div class="stats-data-value">2,160</div>
+                    <div class="stats-data-value" id="statsMemberTotal">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">이번 달 가입</div>
-                    <div class="stats-data-value">88</div>
+                    <div class="stats-data-value" id="statsMemberJoined">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">이번 달 탈퇴</div>
-                    <div class="stats-data-value">78</div>
+                    <div class="stats-data-value" id="statsMemberDropped">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">최다 이용 시간</div>
-                    <div class="stats-data-value">오후 6시</div>
+                    <div class="stats-data-value" id="statsMemberBusyHour">-</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">free</div>
-                    <div class="stats-data-value">1,420</div>
+                    <div class="stats-data-value" id="statsMemberFree">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">pro</div>
-                    <div class="stats-data-value">480</div>
+                    <div class="stats-data-value" id="statsMemberPro">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">pro+</div>
-                    <div class="stats-data-value">180</div>
+                    <div class="stats-data-value" id="statsMemberProPlus">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">expert</div>
-                    <div class="stats-data-value">80</div>
+                    <div class="stats-data-value" id="statsMemberExpert">0</div>
                 </div>
             </div>
             <div class="nw-module">
@@ -752,19 +762,19 @@
             <div class="stats-data-grid">
                 <div class="stats-data-card">
                     <div class="stats-data-label">총 게시글</div>
-                    <div class="stats-data-value">2,321</div>
+                    <div class="stats-data-value" id="statsPostTotal">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">이번 달 등록</div>
-                    <div class="stats-data-value">178</div>
+                    <div class="stats-data-value" id="statsPostMonthly">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">일 평균 등록</div>
-                    <div class="stats-data-value">193</div>
+                    <div class="stats-data-value" id="statsPostDailyAverage">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">최다 카테고리</div>
-                    <div class="stats-value-sm">전자재료</div>
+                    <div class="stats-value-sm" id="statsPostTopCategory">-</div>
                 </div>
             </div>
             <div class="nw-module">
@@ -800,27 +810,27 @@
             <div class="stats-data-grid">
                 <div class="stats-data-card">
                     <div class="stats-data-label">총 신고</div>
-                    <div class="stats-data-value">153</div>
+                    <div class="stats-data-value" id="statsReportTotal">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">회원 신고</div>
-                    <div class="stats-data-value">75</div>
+                    <div class="stats-data-value" id="statsReportMember">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">글 신고</div>
-                    <div class="stats-data-value">78</div>
+                    <div class="stats-data-value" id="statsReportPost">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">대기</div>
-                    <div class="stats-data-value">15</div>
+                    <div class="stats-data-value" id="statsReportPending">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">승인</div>
-                    <div class="stats-data-value">42</div>
+                    <div class="stats-data-value" id="statsReportApplied">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">반려</div>
-                    <div class="stats-data-value">18</div>
+                    <div class="stats-data-value" id="statsReportRejected">0</div>
                 </div>
             </div>
             <div class="nw-module">

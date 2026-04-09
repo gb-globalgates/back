@@ -126,7 +126,7 @@ create type oauth_provider as enum (
 'naver',
 'google'
 );
-create table https://youtu.be/WBFw4c6Pn7Q?si=makozSbMVsVpmBrgauth (
+create table tbl_oauth (
 id               bigint         generated always as identity primary key,
 provider_id varchar(255) unique not null,          -- 공급자 측 고유 사용자 식별자
 provider         oauth_provider not null,          -- oauth 공급자 (enum: kakao/facebook/naver)

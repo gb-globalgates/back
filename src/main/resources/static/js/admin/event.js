@@ -67,12 +67,30 @@
     const reportPostSearchBtn = document.querySelector("#page-report-post .btn-primary");
     const showHiddenOnly = document.querySelector("#showHiddenOnly");
     const showVisibleOnly = document.querySelector("#showVisibleOnly");
+    const showPendingMemberOnly = document.querySelector("#showPendingMemberOnly");
+    const showDoneMemberOnly = document.querySelector("#showDoneMemberOnly");
+    const showRejectedMemberOnly = document.querySelector("#showRejectedMemberOnly");
+    const showPendingPostOnly = document.querySelector("#showPendingPostOnly");
+    const showDonePostOnly = document.querySelector("#showDonePostOnly");
+    const showRejectedPostOnly = document.querySelector("#showRejectedPostOnly");
+    const memberPagination = document.querySelector("#memberPagination");
+    const postPagination = document.querySelector("#postPagination");
+    const reportMemberPagination = document.querySelector("#reportMemberPagination");
+    const reportPostPagination = document.querySelector("#reportPostPagination");
 
     const state = {
         members: [],
         posts: [],
         reportMembers: [],
-        reportPosts: []
+        reportPosts: [],
+        memberCriteria: null,
+        postCriteria: null,
+        reportMemberCriteria: null,
+        reportPostCriteria: null,
+        currentMemberPage: 1,
+        currentPostPage: 1,
+        currentReportMemberPage: 1,
+        currentReportPostPage: 1
     };
 
     const memberRoleBadgeMap = {
@@ -159,10 +177,10 @@
         return `<span class="badge ${badgeInfo.className}">${escapeHtml(badgeInfo.text)}</span>`;
     };
 
-    const renderEmptyRow = (tbody, colSpan, message) => {
+    const renderEmptyRow = (tbody, colSpan) => {
         tbody.innerHTML = `
             <div class="div-tr empty-row">
-                <div class="div-td" style="grid-column: span ${colSpan}; text-align: center;">${escapeHtml(message)}</div>
+                <div class="div-td" style="grid-column: span ${colSpan}; text-align: center;"></div>
             </div>
         `;
     };
@@ -170,6 +188,39 @@
     const setOptions = (select, options) => {
         if (!select) return;
         select.innerHTML = options.map((option) => `<option value="${option.value}">${option.label}</option>`).join("");
+    };
+
+    const renderPagination = (container, criteria, onMovePage) => {
+        if (!container) return;
+        if (!criteria || !criteria.realEnd || criteria.realEnd <= 1) {
+            container.innerHTML = "";
+            return;
+        }
+
+        const buttons = [];
+
+        if (criteria.startPage > 1) {
+            buttons.push(`<button type="button" data-page="${criteria.startPage - 1}">이전</button>`);
+        }
+
+        for (let page = criteria.startPage; page <= criteria.endPage; page++) {
+            const activeClass = page === criteria.page ? "active" : "";
+            buttons.push(`<button type="button" class="${activeClass}" data-page="${page}">${page}</button>`);
+        }
+
+        if (criteria.endPage < criteria.realEnd) {
+            buttons.push(`<button type="button" data-page="${criteria.endPage + 1}">다음</button>`);
+        }
+
+        container.innerHTML = buttons.join("");
+        container.querySelectorAll("button[data-page]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const page = Number(button.dataset.page);
+                if (Number.isFinite(page)) {
+                    onMovePage(page);
+                }
+            });
+        });
     };
 
     const setAdminFilterOptions = () => {
@@ -221,7 +272,7 @@
 
     const renderMembers = (members) => {
         if (!members.length) {
-            renderEmptyRow(memberTbody, 7, "회원 데이터가 없습니다.");
+            renderEmptyRow(memberTbody, 7);
             return;
         }
 
@@ -240,7 +291,7 @@
 
     const renderPosts = (posts) => {
         if (!posts.length) {
-            renderEmptyRow(postTbody, 7, "게시물 데이터가 없습니다.");
+            renderEmptyRow(postTbody, 7);
             return;
         }
 
@@ -259,7 +310,7 @@
 
     const renderReports = (tbody, reports, targetType) => {
         if (!reports.length) {
-            renderEmptyRow(tbody, 7, "신고 데이터가 없습니다.");
+            renderEmptyRow(tbody, 7);
             return;
         }
 
@@ -289,9 +340,14 @@
             memberStatus: filterMemberStatus.value
         });
 
-        const response = await fetchJson(`/api/admin/members/1${query}`);
+        const response = await fetchJson(`/api/admin/members/${state.currentMemberPage}${query}`);
         state.members = response.members || [];
+        state.memberCriteria = response.criteria || null;
         renderMembers(state.members);
+        renderPagination(memberPagination, state.memberCriteria, (page) => {
+            state.currentMemberPage = page;
+            runAdminSearch(loadMembers)();
+        });
     };
 
     const loadPosts = async () => {
@@ -309,36 +365,69 @@
             postStatus
         });
 
-        const response = await fetchJson(`/api/admin/posts/1${query}`);
+        const response = await fetchJson(`/api/admin/posts/${state.currentPostPage}${query}`);
         state.posts = response.posts || [];
+        state.postCriteria = response.criteria || null;
         renderPosts(state.posts);
         document.querySelector("#checkAll").checked = false;
+        renderPagination(postPagination, state.postCriteria, (page) => {
+            state.currentPostPage = page;
+            runAdminSearch(loadPosts)();
+        });
     };
 
     const loadReportMembers = async () => {
+        let reportStatus = filterReportMember.value;
+        if (showPendingMemberOnly?.checked) {
+            reportStatus = "pending";
+        } else if (showDoneMemberOnly?.checked) {
+            reportStatus = "applied";
+        } else if (showRejectedMemberOnly?.checked) {
+            reportStatus = "rejected";
+        }
+
         const query = buildQuery({
             keyword: reportMemberSearchInput.value.trim(),
             targetType: "member",
-            reportStatus: filterReportMember.value
+            reportStatus
         });
 
-        const response = await fetchJson(`/api/admin/reports/1${query}`);
+        const response = await fetchJson(`/api/admin/reports/${state.currentReportMemberPage}${query}`);
         state.reportMembers = response.reports || [];
+        state.reportMemberCriteria = response.criteria || null;
         renderReports(reportMemberTbody, state.reportMembers, "member");
         document.querySelector("#reportMemberCheckAll").checked = false;
+        renderPagination(reportMemberPagination, state.reportMemberCriteria, (page) => {
+            state.currentReportMemberPage = page;
+            runAdminSearch(loadReportMembers)();
+        });
     };
 
     const loadReportPosts = async () => {
+        let reportStatus = filterReportPost.value;
+        if (showPendingPostOnly?.checked) {
+            reportStatus = "pending";
+        } else if (showDonePostOnly?.checked) {
+            reportStatus = "applied";
+        } else if (showRejectedPostOnly?.checked) {
+            reportStatus = "rejected";
+        }
+
         const query = buildQuery({
             keyword: reportPostSearchInput.value.trim(),
             targetType: "post",
-            reportStatus: filterReportPost.value
+            reportStatus
         });
 
-        const response = await fetchJson(`/api/admin/reports/1${query}`);
+        const response = await fetchJson(`/api/admin/reports/${state.currentReportPostPage}${query}`);
         state.reportPosts = response.reports || [];
+        state.reportPostCriteria = response.criteria || null;
         renderReports(reportPostTbody, state.reportPosts, "post");
         document.querySelector("#reportPostCheckAll").checked = false;
+        renderPagination(reportPostPagination, state.reportPostCriteria, (page) => {
+            state.currentReportPostPage = page;
+            runAdminSearch(loadReportPosts)();
+        });
     };
 
     const runAdminSearch = (loader) => async () => {
@@ -596,7 +685,10 @@
     });
 
 
-    const applyMemberFilter = runAdminSearch(loadMembers);
+    const applyMemberFilter = () => {
+        state.currentMemberPage = 1;
+        runAdminSearch(loadMembers)();
+    };
 
     filterMemberGrade.addEventListener("change", applyMemberFilter);
     filterMemberStatus.addEventListener("change", applyMemberFilter);
@@ -670,7 +762,10 @@
         }
     });
 
-    const applyPostFilter = runAdminSearch(loadPosts);
+    const applyPostFilter = () => {
+        state.currentPostPage = 1;
+        runAdminSearch(loadPosts)();
+    };
 
     filterPostType.addEventListener("change", applyPostFilter);
     filterPostCategory.addEventListener("change", applyPostFilter);
@@ -954,8 +1049,41 @@
         }
     });
 
-    const applyReportMemberFilter = runAdminSearch(loadReportMembers);
+    const applyReportMemberFilter = () => {
+        state.currentReportMemberPage = 1;
+        runAdminSearch(loadReportMembers)();
+    };
     filterReportMember.addEventListener("change", applyReportMemberFilter);
+    showPendingMemberOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showDoneMemberOnly.checked = false;
+            showRejectedMemberOnly.checked = false;
+            filterReportMember.value = "pending";
+        } else {
+            filterReportMember.value = "all";
+        }
+        applyReportMemberFilter();
+    });
+    showDoneMemberOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showPendingMemberOnly.checked = false;
+            showRejectedMemberOnly.checked = false;
+            filterReportMember.value = "applied";
+        } else {
+            filterReportMember.value = "all";
+        }
+        applyReportMemberFilter();
+    });
+    showRejectedMemberOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showPendingMemberOnly.checked = false;
+            showDoneMemberOnly.checked = false;
+            filterReportMember.value = "rejected";
+        } else {
+            filterReportMember.value = "all";
+        }
+        applyReportMemberFilter();
+    });
     reportMemberSearchBtn.addEventListener("click", applyReportMemberFilter);
     reportMemberSearchInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
@@ -1032,8 +1160,41 @@
         }
     });
 
-    const applyReportPostFilter = runAdminSearch(loadReportPosts);
+    const applyReportPostFilter = () => {
+        state.currentReportPostPage = 1;
+        runAdminSearch(loadReportPosts)();
+    };
     filterReportPost.addEventListener("change", applyReportPostFilter);
+    showPendingPostOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showDonePostOnly.checked = false;
+            showRejectedPostOnly.checked = false;
+            filterReportPost.value = "pending";
+        } else {
+            filterReportPost.value = "all";
+        }
+        applyReportPostFilter();
+    });
+    showDonePostOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showPendingPostOnly.checked = false;
+            showRejectedPostOnly.checked = false;
+            filterReportPost.value = "applied";
+        } else {
+            filterReportPost.value = "all";
+        }
+        applyReportPostFilter();
+    });
+    showRejectedPostOnly?.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            showPendingPostOnly.checked = false;
+            showDonePostOnly.checked = false;
+            filterReportPost.value = "rejected";
+        } else {
+            filterReportPost.value = "all";
+        }
+        applyReportPostFilter();
+    });
     reportPostSearchBtn.addEventListener("click", applyReportPostFilter);
     reportPostSearchInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
@@ -1546,6 +1707,85 @@
 
     const chartPalette = ['#0f1419', '#536471', '#cfd9de', '#1d9bf0', '#eff3f4', '#8ecdf8', '#7a8b95'];
 
+    const formatNumber = (value) => new Intl.NumberFormat("ko-KR").format(Number(value || 0));
+
+    const sumPointValues = (points = [], secondary = false) =>
+        points.reduce((total, point) => total + Number(secondary ? (point.secondaryValue ?? 0) : (point.value ?? 0)), 0);
+
+    const findPointValue = (points = [], keywords = []) => {
+        const target = points.find((point) =>
+            keywords.some((keyword) => String(point.label || "").toLowerCase().includes(keyword))
+        );
+        return Number(target?.value ?? 0);
+    };
+
+    const findExactPointValue = (points = [], targets = []) => {
+        const normalizedTargets = targets.map((target) => String(target).toLowerCase());
+        const target = points.find((point) =>
+            normalizedTargets.includes(String(point.label || "").toLowerCase())
+        );
+        return Number(target?.value ?? 0);
+    };
+
+    const findTopPoint = (points = []) => {
+        return points.reduce((best, point) => {
+            const currentValue = Number(point?.value ?? 0);
+            const bestValue = Number(best?.value ?? -1);
+            return currentValue > bestValue ? point : best;
+        }, null);
+    };
+
+    const formatHourLabel = (label) => {
+        const hour = Number(label);
+        if (!Number.isFinite(hour)) {
+            return label || "-";
+        }
+        if (hour === 0) return "오전 12시";
+        if (hour < 12) return `오전 ${hour}시`;
+        if (hour === 12) return "오후 12시";
+        return `오후 ${hour - 12}시`;
+    };
+
+    const updateStatsCards = () => {
+        if (!adminStatsDashboard) return;
+
+        const memberTypes = adminStatsDashboard.memberTypes ?? [];
+        const memberTrendRows = adminStatsDashboard.memberTrend?.[trendPeriod] ?? [];
+        const hourlyRows = adminStatsDashboard.hourlyVisits?.[hourlyPeriod] ?? [];
+        const postMonthlyRows = adminStatsDashboard.postMonthly?.[postMonthlyPeriod] ?? [];
+        const postCategoryRows = adminStatsDashboard.postCategories?.[postCategoryPeriod] ?? [];
+        const reportMonthlyRows = adminStatsDashboard.reportMonthly?.[reportMonthlyPeriod] ?? [];
+        const reportStatuses = adminStatsDashboard.reportStatuses ?? [];
+        const reportMemberTypes = adminStatsDashboard.reportMemberTypes ?? [];
+        const reportPostTypes = adminStatsDashboard.reportPostTypes ?? [];
+
+        const busiestHour = findTopPoint(hourlyRows);
+        const topCategory = findTopPoint(postCategoryRows);
+        const totalPosts = sumPointValues(postMonthlyRows);
+        const dailyAverage = postMonthlyRows.length ? (totalPosts / postMonthlyRows.length) : 0;
+
+        document.querySelector("#statsMemberTotal").textContent = formatNumber(sumPointValues(memberTypes));
+        document.querySelector("#statsMemberJoined").textContent = formatNumber(sumPointValues(memberTrendRows));
+        document.querySelector("#statsMemberDropped").textContent = formatNumber(sumPointValues(memberTrendRows, true));
+        document.querySelector("#statsMemberBusyHour").textContent = formatHourLabel(busiestHour?.label);
+        document.querySelector("#statsMemberFree").textContent = formatNumber(findExactPointValue(memberTypes, ["free"]));
+        document.querySelector("#statsMemberPro").textContent = formatNumber(findExactPointValue(memberTypes, ["pro"]));
+        document.querySelector("#statsMemberProPlus").textContent = formatNumber(findExactPointValue(memberTypes, ["pro+"]));
+        document.querySelector("#statsMemberExpert").textContent = formatNumber(findExactPointValue(memberTypes, ["expert"]));
+
+        document.querySelector("#statsPostTotal").textContent = formatNumber(totalPosts);
+        document.querySelector("#statsPostMonthly").textContent = formatNumber(sumPointValues(adminStatsDashboard.postMonthly?.["30d"] ?? []));
+        document.querySelector("#statsPostDailyAverage").textContent = dailyAverage.toFixed(1);
+        document.querySelector("#statsPostTopCategory").textContent = topCategory?.label || "-";
+
+        document.querySelector("#statsReportTotal").textContent = formatNumber(sumPointValues(reportMonthlyRows));
+        document.querySelector("#statsReportMember").textContent = formatNumber(sumPointValues(reportMemberTypes));
+        document.querySelector("#statsReportPost").textContent = formatNumber(sumPointValues(reportPostTypes));
+        document.querySelector("#statsReportPending").textContent = formatNumber(findPointValue(reportStatuses, ["pending", "대기"]));
+        document.querySelector("#statsReportApplied").textContent = formatNumber(findPointValue(reportStatuses, ["applied", "승인"]));
+        document.querySelector("#statsReportRejected").textContent = formatNumber(findPointValue(reportStatuses, ["rejected", "반려"]));
+    };
+
     const getSeriesRows = (map, period, useSecondary = false) =>
         (map?.[period] ?? []).map((point) => [
             point.label,
@@ -1553,6 +1793,7 @@
         ]);
 
     const redrawLoadedCharts = () => {
+        updateStatsCards();
         if (drawnPortals.has(6)) {
             drawMemberTrend();
             drawMemberType();
