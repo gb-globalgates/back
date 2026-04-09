@@ -291,7 +291,7 @@
 
     const renderPosts = (posts) => {
         if (!posts.length) {
-            renderEmptyRow(postTbody, 7);
+            renderEmptyRow(postTbody, 6);
             return;
         }
 
@@ -300,7 +300,6 @@
                 <div class="div-td"><input type="checkbox"/></div>
                 <div class="div-td">${index + 1}</div>
                 <div class="div-td">${escapeHtml(post.authorName)}</div>
-                <div class="div-td"><div class="post-title">${escapeHtml(post.postTitle)}</div></div>
                 <div class="div-td">${getBadgeMarkup(post.postType, postTypeBadgeMap, "badge-qna")}</div>
                 <div class="div-td">${escapeHtml(post.categoryName || "-")}</div>
                 <div class="div-td">${escapeHtml(post.createdDatetime || "-")}</div>
