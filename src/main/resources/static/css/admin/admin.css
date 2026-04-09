@@ -933,8 +933,15 @@ a {
 .report-search-bar {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
     margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.post-search-bar {
+    max-width: 820px;
+    margin-left: auto;
 }
 
 /* 게시물/뉴스/신고 관리 헤더 2단 레이아웃 */
@@ -1449,4 +1456,38 @@ a {
 #modalNewsAutoSettings .modal-section-title {
     width: 100%;
     text-align: center;
+}
+
+.admin-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 0 8px;
+    flex-wrap: wrap;
+}
+
+.admin-pagination button {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid #d7e0e7;
+    background: #fff;
+    color: #536471;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.admin-pagination button:hover {
+    border-color: #1d9bf0;
+    color: #1d9bf0;
+}
+
+.admin-pagination button.active {
+    background: #0f1419;
+    border-color: #0f1419;
+    color: #fff;
 }
