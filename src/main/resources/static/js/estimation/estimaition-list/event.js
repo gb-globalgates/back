@@ -51,14 +51,24 @@ window.addEventListener("load", async () => {
         return text ? escapeHtml(text) : "위치 미등록";
     };
 
+    const normalizeStatus = (status) => String(status ?? "").trim().toLowerCase();
+
     const toFilterState = (status) => {
-        switch (status) {
+        const normalized = normalizeStatus(status);
+        if (normalized === "approve" || normalized === "reject") {
+            return normalized;
+        }
+        return "requesting";
+    };
+
+    const formatStatusLabel = (status) => {
+        switch (normalizeStatus(status)) {
             case "approve":
-                return "closed";
+                return "승인됨";
             case "reject":
-                return "review";
+                return "거절됨";
             default:
-                return "open";
+                return "요청중";
         }
     };
 
@@ -96,7 +106,7 @@ window.addEventListener("load", async () => {
                         <span class="postTime">${escapeHtml(estimation.createdDateTime || "")}</span>
                     </div>
                     <div class="estimation-preview-card__status-wrap">
-                        <span class="estimation-preview-card__status">${escapeHtml(estimation.status || "requesting")}</span>
+                        <span class="estimation-preview-card__status">${escapeHtml(formatStatusLabel(estimation.status))}</span>
                     </div>
                     <div class="estimation-more">
                         <button type="button" class="tweet-more-btn" data-estimation-more-trigger aria-expanded="false" aria-label="더보기">
@@ -173,14 +183,14 @@ window.addEventListener("load", async () => {
             </section>
             <section class="estimation-detail-panel__section">
                 <h4 class="estimation-detail-panel__section-title">상태</h4>
-                <p class="estimation-detail-panel__list">${escapeHtml(estimation.status || "requesting")}</p>
+                <p class="estimation-detail-panel__list" data-estimation-status-text="detail-${estimation.id}">${escapeHtml(formatStatusLabel(estimation.status))}</p>
             </section>
             <section class="estimation-detail-panel__section">
                 <h4 class="estimation-detail-panel__section-title">위치</h4>
                 <p class="estimation-detail-panel__list">${formatLocation(estimation.location)}</p>
             </section>
             <div class="estimation-action-slot estimation-action-slot--modal">
-                <div class="estimation-action-group estimation-action-group--modal" data-estimation-decision-group="detail-${estimation.id}">
+                <div class="estimation-action-group estimation-action-group--modal" data-estimation-decision-group="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "approve" || normalizeStatus(estimation.status) === "reject" ? "hidden" : ""}>
                     <button type="button"
                             class="estimation-action-btn estimation-action-btn--approve"
                             data-estimation-decision-id="detail-${estimation.id}"
@@ -192,8 +202,8 @@ window.addEventListener("load", async () => {
                             data-estimation-decision="reject"
                             aria-pressed="false">거절</button>
                 </div>
-                <div class="estimation-approved-state" data-estimation-approved-state="detail-${estimation.id}" hidden>승인됨</div>
-                <div class="estimation-rejected-state" data-estimation-rejected-state="detail-${estimation.id}" hidden>거절됨</div>
+                <div class="estimation-approved-state" data-estimation-approved-state="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "approve" ? "" : "hidden"}>승인됨</div>
+                <div class="estimation-rejected-state" data-estimation-rejected-state="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "reject" ? "" : "hidden"}>거절됨</div>
             </div>
         </div>
     `;
@@ -361,10 +371,20 @@ window.addEventListener("load", async () => {
         const card = q(`[data-estimation-card][data-estimation-detail-target="detail-${estimationId}"]`);
         if (!card) return;
 
-        card.dataset.filterState = type === "approve" ? "closed" : "review";
+        card.dataset.filterState = type;
         const statusText = card.querySelector(".estimation-preview-card__status");
         if (statusText) {
-            statusText.textContent = type;
+            statusText.textContent = formatStatusLabel(type);
+        }
+    };
+
+    const updateDetailStatus = (estimationId, type) => {
+        const panel = q(`[data-estimation-detail-panel="detail-${estimationId}"]`);
+        if (!panel) return;
+
+        const statusText = q(`[data-estimation-status-text="detail-${estimationId}"]`, panel);
+        if (statusText) {
+            statusText.textContent = formatStatusLabel(type);
         }
     };
 
@@ -456,7 +476,7 @@ window.addEventListener("load", async () => {
         estimationStore = estimations;
 
         if (!estimations.length) {
-            listRoot.innerHTML = '<p class="estimation-empty">등록된 견적 요청이 없습니다.</p>';
+            listRoot.innerHTML = '<p class="estimation-empty">등록된 견적요청이 없습니다.</p>';
             detailBody.innerHTML = "";
             return;
         }
@@ -537,6 +557,7 @@ window.addEventListener("load", async () => {
             await persistDecision(estimationId, type);
             applyDecisionState(slot, type);
             updateCardStatus(estimationId, type);
+            updateDetailStatus(estimationId, type);
             const target = estimationStore.find((estimation) => estimation.id === estimationId);
             if (target) {
                 target.status = type;

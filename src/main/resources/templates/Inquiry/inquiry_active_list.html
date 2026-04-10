@@ -82,70 +82,11 @@
                                 </div>
                             </div>
                         </section>
-                        <!-- 필터 드롭다운 + 빠른 기간 칩 -->
-                        <div class="activity-toolbar-bottom">
-                            <div class="activity-filter-dropdown">
-                                <button
-                                        type="button"
-                                        class="activity-filter-button"
-                                        data-activity-filter-trigger
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                >
-                                    <span data-activity-filter-label>답글</span>
-                                    <span class="activity-toolbar__caret" aria-hidden="true"></span>
-                                </button>
-                                <div
-                                        class="activity-filter-menu"
-                                        role="menu"
-                                        data-activity-filter-menu
-                                        hidden
-                                >
-                                    <button
-                                            type="button"
-                                            class="activity-filter-menu__item"
-                                            role="menuitemradio"
-                                            aria-checked="false"
-                                            data-activity-filter-item="posts"
-                                    >
-                                        <span class="activity-filter-menu__check" aria-hidden="true">✓</span>
-                                        <span class="activity-filter-menu__label">게시물</span>
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="activity-filter-menu__item"
-                                            role="menuitemradio"
-                                            aria-checked="false"
-                                            data-activity-filter-item="posts-replies"
-                                    >
-                                        <span class="activity-filter-menu__check" aria-hidden="true">✓</span>
-                                        <span class="activity-filter-menu__label">게시물 및 답글</span>
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="activity-filter-menu__item activity-filter-menu__item--selected"
-                                            role="menuitemradio"
-                                            aria-checked="true"
-                                            data-activity-filter-item="replies"
-                                    >
-                                        <span class="activity-filter-menu__check" aria-hidden="true">✓</span>
-                                        <span class="activity-filter-menu__label">답글</span>
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="activity-filter-menu__item"
-                                            role="menuitemradio"
-                                            aria-checked="false"
-                                            data-activity-filter-item="community"
-                                    >
-                                        <span class="activity-filter-menu__check" aria-hidden="true">✓</span>
-                                        <span class="activity-filter-menu__label">커뮤니티 게시글</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="activity-toolbar__chips" aria-label="빠른 기간">
-                                <button type="button" class="period-chip period-chip--active" data-period-chip="7D">7D
-                                </button>
+                    <!-- 빠른 기간 칩 -->
+                    <div class="activity-toolbar-bottom">
+                        <div class="activity-toolbar__chips" aria-label="빠른 기간">
+                            <button type="button" class="period-chip period-chip--active" data-period-chip="7D">7D
+                            </button>
                                 <button type="button" class="period-chip" data-period-chip="2W">2W</button>
                                 <button type="button" class="period-chip" data-period-chip="4W">4W</button>
                                 <button type="button" class="period-chip" data-period-chip="3M">3M</button>
