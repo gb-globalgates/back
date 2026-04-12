@@ -63,6 +63,7 @@
                pp.updated_datetime,
                m.member_nickname,
                m.member_handle,
+               f.file_path as memberProfile,
                p.title as post_title,
                p.content as post_content,
         (select count(*) from tbl_post_like pl where pl.post_id = pp.id) as like_count,
@@ -77,6 +78,8 @@
         from tbl_post_product pp
         join tbl_post p on pp.id = p.id
         join tbl_member m on p.member_id = m.id
+        left join tbl_member_profile_file mpf on mpf.member_id = m.id
+        left join tbl_file f on f.id = mpf.id
         where p.post_status = 'active'
         order by created_datetime desc
         limit #{criteria.count} offset #{criteria.offset}
