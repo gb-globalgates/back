@@ -180,7 +180,7 @@
         "실제 존재하지 않는 제품 등록 신고",
         "원산지 허위 표기 신고",
         "상표 제품 무단 판매 신고",
-        "?섏텧???쒗븳 ?덈ぉ ?좉퀬",
+        "수출이 제한된 품목 신고",
         "반복적인 동일 게시물 신고",
     ];
 
@@ -317,7 +317,7 @@
         closeNotificationModal();
         const modal = document.createElement("div");
         modal.className = "notification-dialog notification-dialog--block";
-        modal.innerHTML = `<div class="notification-dialog__backdrop"></div><div class="notification-dialog__card notification-dialog__card--small" role="alertdialog" aria-modal="true"><h2 class="notification-dialog__title">${escapeHtml(handle)} ?섏쓣 차단?좉퉴??</h2><p class="notification-dialog__description">더 공개 게시물을 볼 수 있지만 더 이상 게시물에 참여할 수 없습니다. 또한 ${escapeHtml(handle)} 님을 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 받지 않습니다.</p><div class="notification-dialog__actions"><button type="button" class="notification-dialog__danger notification-dialog__confirm-block">차단</button><button type="button" class="notification-dialog__secondary notification-dialog__close">취소</button></div></div>`;
+        modal.innerHTML = `<div class="notification-dialog__backdrop"></div><div class="notification-dialog__card notification-dialog__card--small" role="alertdialog" aria-modal="true"><h2 class="notification-dialog__title">${escapeHtml(handle)} 님을 차단할까요?</h2><p class="notification-dialog__description">더 공개 게시물을 볼 수 있지만 더 이상 게시물에 참여할 수 없습니다. 또한 ${escapeHtml(handle)} 님을 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 받지 않습니다.</p><div class="notification-dialog__actions"><button type="button" class="notification-dialog__danger notification-dialog__confirm-block">차단</button><button type="button" class="notification-dialog__secondary notification-dialog__close">취소</button></div></div>`;
         modal.addEventListener("click", (e) => {
             if (e.target.classList.contains("notification-dialog__backdrop") || e.target.closest(".notification-dialog__close")) {
                 e.preventDefault();
@@ -326,7 +326,7 @@
             }
             if (e.target.closest(".notification-dialog__confirm-block")) {
                 e.preventDefault();
-                showNotificationToast(`${handle} ?섏쓣 차단?덉뒿?덈떎`);
+                showNotificationToast(`${handle} 님을 차단했습니다`);
                 closeNotificationModal();
             }
         });
@@ -1288,7 +1288,7 @@
     }
 
     function getReplyMediaTriggerLabel() {
-        return replyMediaEdits.some((e) => e.alt.trim().length > 0) ? "?ㅻ챸 ?섏젙" : "?ㅻ챸 異붽?";
+        return replyMediaEdits.some((e) => e.alt.trim().length > 0) ? "설명 수정" : "설명 추가";
     }
 
     function syncReplyMediaEditsToAttachments() {
@@ -1333,7 +1333,7 @@
         const edit = getCurrentPendingReplyMediaEdit();
         const url = getCurrentReplyMediaUrl();
         const alt = edit.alt ?? "";
-        if (replyMediaTitle) replyMediaTitle.textContent = "?대?吏 ?ㅻ챸 ?섏젙";
+        if (replyMediaTitle) replyMediaTitle.textContent = "이미지 설명 수정";
         if (replyMediaPrevButton) replyMediaPrevButton.disabled = activeReplyMediaIndex === 0;
         if (replyMediaNextButton) replyMediaNextButton.disabled = activeReplyMediaIndex >= pendingReplyMediaEdits.length - 1;
         replyMediaPreviewImages.forEach((img) => {
@@ -1565,7 +1565,7 @@
 
     function getReplyImageCell(index, url, cls) {
         const alt = getReplyMediaImageAlt(index);
-        return `<div class="media-cell ${cls}"><div class="media-cell-inner"><div class="media-img-container" aria-label="誘몃뵒?? role="group"><div class="media-bg" style="background-image: url('${url}');"></div><img alt="${escapeHtml(alt)}" draggable="false" src="${url}" class="media-img"></div><div class="media-btn-row"><button type="button" class="media-btn" data-attachment-edit-index="${index}"><span>?섏젙</span></button></div><button type="button" class="media-btn-delete" aria-label="誘몃뵒????젣?섍린" data-attachment-remove-index="${index}"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div></div>`;
+        return `<div class="media-cell ${cls}"><div class="media-cell-inner"><div class="media-img-container" aria-label="미디어" role="group"><div class="media-bg" style="background-image: url('${url}');"></div><img alt="${escapeHtml(alt)}" draggable="false" src="${url}" class="media-img"></div><div class="media-btn-row"><button type="button" class="media-btn" data-attachment-edit-index="${index}"><span>수정</span></button></div><button type="button" class="media-btn-delete" aria-label="미디어 제거하기" data-attachment-remove-index="${index}"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div></div>`;
     }
 
     function renderReplyImageGrid() {
@@ -1589,7 +1589,7 @@
     function renderReplyVideoAttachment() {
         if (!replyAttachmentMedia || attachedReplyFiles.length === 0) return;
         const [file] = attachedReplyFiles, [fileUrl] = attachedReplyFileUrls;
-        replyAttachmentMedia.innerHTML = `<div class="media-aspect-ratio media-aspect-ratio--single"></div><div class="media-absolute-layer"><div class="media-cell media-cell--single"><div class="media-cell-inner"><div class="media-img-container" aria-label="誘몃뵒?? role="group"><video class="tweet-modal__attachment-video" controls preload="metadata"><source src="${fileUrl}" type="${file.type}"></video></div><div class="media-btn-row"><button type="button" class="media-btn" data-attachment-edit-index="0"><span>?섏젙</span></button></div><button type="button" class="media-btn-delete" aria-label="誘몃뵒????젣?섍린" data-attachment-remove-index="0"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div></div></div>`;
+        replyAttachmentMedia.innerHTML = `<div class="media-aspect-ratio media-aspect-ratio--single"></div><div class="media-absolute-layer"><div class="media-cell media-cell--single"><div class="media-cell-inner"><div class="media-img-container" aria-label="미디어" role="group"><video class="tweet-modal__attachment-video" controls preload="metadata"><source src="${fileUrl}" type="${file.type}"></video></div><div class="media-btn-row"><button type="button" class="media-btn" data-attachment-edit-index="0"><span>수정</span></button></div><button type="button" class="media-btn-delete" aria-label="미디어 제거하기" data-attachment-remove-index="0"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div></div></div>`;
     }
 
     function renderReplyAttachment() {
@@ -1944,8 +1944,8 @@
             cc = getDraftConfirmCopy();
         if (draftActionButton) {
             draftActionButton.textContent = draftPanelState.isEditMode
-                ? "?꾨즺"
-                : "?섏젙";
+                ? "완료"
+                : "수정";
             draftActionButton.disabled = !hasItems;
             draftActionButton.classList.toggle(
                 "draft-panel__action--done",
@@ -1959,8 +1959,8 @@
         if (draftFooter) draftFooter.hidden = !draftPanelState.isEditMode;
         if (draftSelectAllButton)
             draftSelectAllButton.textContent = areAllDraftItemsSelected()
-                ? "紐⑤몢 ?좏깮 ?댁젣"
-                : "紐⑤몢 ?좏깮";
+                ? "모두 선택 해제"
+                : "모두 선택";
         if (draftDeleteButton)
             draftDeleteButton.disabled = !hasDraftSelection();
         if (draftConfirmOverlay)
@@ -2719,7 +2719,7 @@ window.addEventListener("load", () => {
         moreButton.type = "button";
         moreButton.className = "draft-panel__action";
         moreButton.hidden = true;
-        moreButton.textContent = "??蹂닿린";
+        moreButton.textContent = "더보기";
         moreButton.setAttribute("data-activity-more", "");
         moreWrap.appendChild(moreButton);
     }
@@ -2759,8 +2759,8 @@ window.addEventListener("load", () => {
     const renderHashtags = (hashtags = []) => {
         if (!hashtags.length) return "";
         return `
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;">
-                ${hashtags.map((tag) => `<span class="period-chip">#${escapeHtml(tag.tagName)}</span>`).join("")}
+            <div class="activity-hashtags">
+                ${hashtags.map((tag) => `<span class="activity-hashtag">#${escapeHtml(tag.tagName)}</span>`).join("")}
             </div>
         `;
     };

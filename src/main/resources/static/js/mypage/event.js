@@ -87,6 +87,7 @@ window.onload = function () {
     const replyMediaAltInput = q("[data-media-alt-input]");
     const replyMediaAltCount = q("[data-media-alt-count]");
 
+
     // draftView는 원래 Draft Panel 섹션(아래 line 1600대)에서 선언되지만,
     // showReplyPanel 헬퍼가 답글 모달 서브 패널 전환에 draftView를 포함하도록
     // 설계되어 있어 상단으로 끌어올렸다. 실제 DOM 요소 할당은 기존 위치에서 그대로 수행한다.

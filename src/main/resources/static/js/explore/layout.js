@@ -31,7 +31,9 @@ const exploreLayout = (() => {
             <div class="Post-Body">
                 <div class="Post-Header">
                     <div class="Post-Avatar-Wrapper">
-                        <div class="Post-Avatar">판</div>
+                        <div class="Post-Avatar">
+                            <img src="${post.memberProfile ? post.memberProfile : "/images/profile/default_image.png"}" alt="member-profile" />
+                        </div>
                     </div>
                     <div class="Post-Identity">
                         <strong class="Post-Name">${post.memberNickname}</strong>
@@ -217,7 +219,7 @@ const exploreLayout = (() => {
                 ? `<div class="postAvatar postAvatar--image">
                        <img src="${post.memberProfileFileName}" alt="프로필 이미지" class="postAvatarImage" />
                    </div>`
-                                : `<div class="postAvatar postAvatar--image">
+                : `<div class="postAvatar postAvatar--image">
                        <img src="/images/profile/default_image.png" alt="프로필 이미지" class="postAvatarImage" />
                    </div>`;
 
