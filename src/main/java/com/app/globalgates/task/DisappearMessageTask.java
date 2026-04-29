@@ -28,8 +28,6 @@ public class DisappearMessageTask {
         for (Map<String, Object> setting : settings) {
             Long conversationId = ((Number) setting.get("conversationid")).longValue();
             String disappearMessage = (String) setting.get("disappearmessage");
-            java.sql.Timestamp activatedTs = (java.sql.Timestamp) setting.get("settingactivatedat");
-            LocalDateTime settingActivatedAt = activatedTs != null ? activatedTs.toLocalDateTime() : LocalDateTime.now();
 
             LocalDateTime cutoff = calculateCutoff(disappearMessage);
             if (cutoff == null) {
@@ -37,7 +35,7 @@ public class DisappearMessageTask {
                 continue;
             }
 
-            int deleted = chatMessageDAO.softDeleteExpiredMessages(conversationId, settingActivatedAt, cutoff);
+            int deleted = chatMessageDAO.softDeleteExpiredMessages(conversationId, cutoff);
             if (deleted > 0) {
                 log.info("[사라진 메시지] conversationId: {}, 설정: {}, 삭제: {}건", conversationId, disappearMessage, deleted);
                 totalDeleted += deleted;

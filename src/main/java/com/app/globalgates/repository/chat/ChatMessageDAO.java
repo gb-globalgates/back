@@ -40,7 +40,7 @@ public class ChatMessageDAO {
     }
 
 //    만료된 메시지 일괄 soft delete
-    public int softDeleteExpiredMessages(Long conversationId, java.time.LocalDateTime settingActivatedAt, java.time.LocalDateTime cutoffTime) {
-        return chatMessageMapper.softDeleteExpiredMessages(conversationId, settingActivatedAt, cutoffTime);
+    public int softDeleteExpiredMessages(Long conversationId, java.time.LocalDateTime cutoffTime) {
+        return chatMessageMapper.softDeleteExpiredMessages(conversationId, cutoffTime);
     }
 }

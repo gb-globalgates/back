@@ -25,6 +25,5 @@ public interface ChatMessageMapper {
     List<Map<String, Object>> selectActiveDisappearSettings();
 //    만료된 메시지 일괄 soft delete
     int softDeleteExpiredMessages(@Param("conversationId") Long conversationId,
-                                  @Param("settingActivatedAt") java.time.LocalDateTime settingActivatedAt,
                                   @Param("cutoffTime") java.time.LocalDateTime cutoffTime);
 }

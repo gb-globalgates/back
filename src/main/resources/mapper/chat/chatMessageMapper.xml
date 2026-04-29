@@ -139,24 +139,29 @@
         on conflict (message_id, member_id) do nothing
     </insert>
 
-    <!-- 사라진 메시지 설정이 활성화된 대화방 조회 -->
+    <!--
+      활성 disappear 설정 모두 조회 (참여자별로 row 1개).
+      이전엔 DISTINCT ON (conversation_id)로 한 명의 설정만 비결정적으로 골라서
+      A/B가 다른 설정이면 한쪽이 무시됐다. 모든 row를 처리하면 가장 짧은 cutoff가 자연 우선.
+    -->
     <select id="selectActiveDisappearSettings" resultType="map">
-        select distinct on (cs.conversation_id)
-               cs.conversation_id as conversationId,
-               cs.disappear_message as disappearMessage,
-               cs.updated_datetime as settingActivatedAt
+        select cs.conversation_id as conversationId,
+               cs.disappear_message as disappearMessage
         from tbl_conversation_setting cs
         where cs.disappear_message not in ('none', '없음')
           and coalesce(cs.is_deleted, false) = false
     </select>
 
-    <!-- 만료된 메시지 일괄 soft delete (설정 적용 이후 보낸 메시지만) -->
+    <!--
+      cutoffTime(=now - 설정값) 이전 메시지를 일괄 soft delete.
+      이전엔 settingActivatedAt 이후 메시지만 삭제했는데, 설정 변경 시
+      updated_datetime이 갱신되어 이전 설정 기간 메시지가 사각지대에 빠지는 버그가 있어 제거.
+    -->
     <update id="softDeleteExpiredMessages">
         update tbl_message
         set is_deleted = true, updated_datetime = now()
         where conversation_id = #{conversationId}
           and is_deleted = false
-          and created_datetime &gt;= #{settingActivatedAt}
           and created_datetime &lt; #{cutoffTime}
     </update>
 

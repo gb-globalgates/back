@@ -17,6 +17,7 @@ import com.app.globalgates.service.ProducerService;
 import com.app.globalgates.service.S3Service;
 import com.app.globalgates.repository.FileDAO;
 import com.app.globalgates.repository.MemberDAO;
+import com.app.globalgates.repository.chat.ChatFileDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ public class ChatAPIController {
     private final FileDAO fileDAO;
     private final S3Service s3Service;
     private final ChatFileService chatFileService;
+    private final ChatFileDAO chatFileDAO;
     private final SimpMessagingTemplate messagingTemplate;
 
     // 채팅방 목록 조회
@@ -242,15 +244,14 @@ public class ChatAPIController {
         return ResponseEntity.ok(saved);
     }
 
-    // 반응 삭제
+    // 반응 삭제 (DELETE에 body 의존하면 일부 프록시가 제거하므로 query param으로 받음)
     @DeleteMapping("/messages/{messageId}/reactions")
     public ResponseEntity<Void> removeReaction(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long messageId,
-            @RequestBody Map<String, Object> body) {
+            @RequestParam String emoji,
+            @RequestParam Long conversationId) {
         Long memberId = userDetails.getId();
-        String emoji = (String) body.get("emoji");
-        Long conversationId = Long.valueOf(body.get("conversationId").toString());
         log.info("반응 삭제 - messageId: {}, memberId: {}, emoji: {}", messageId, memberId, emoji);
         messageReactionService.removeReaction(messageId, memberId, emoji, conversationId);
         return ResponseEntity.ok().build();
@@ -292,8 +293,14 @@ public class ChatAPIController {
 
     // 파일 다운로드 URL 조회
     @GetMapping("/files/{fileId}/download")
-    public ResponseEntity<Map<String, String>> getFileDownloadUrl(@PathVariable Long fileId) throws IOException {
-        log.info("파일 다운로드 URL 조회 - fileId: {}", fileId);
+    public ResponseEntity<Map<String, String>> getFileDownloadUrl(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long fileId) throws IOException {
+        Long memberId = userDetails.getId();
+        log.info("파일 다운로드 URL 조회 - fileId: {}, memberId: {}", fileId, memberId);
+        if (!chatFileDAO.isAccessibleByMember(fileId, memberId)) {
+            return ResponseEntity.status(403).body(Map.of("error", "접근 권한 없음"));
+        }
         Optional<FileVO> fileOpt = fileDAO.findById(fileId);
         if (fileOpt.isEmpty()) return ResponseEntity.notFound().build();
         FileVO file = fileOpt.get();
@@ -304,8 +311,14 @@ public class ChatAPIController {
 
     // 파일 미리보기 URL 조회
     @GetMapping("/files/{fileId}/preview")
-    public ResponseEntity<Map<String, String>> getFilePreviewUrl(@PathVariable Long fileId) throws IOException {
-        log.info("파일 미리보기 URL 조회 - fileId: {}", fileId);
+    public ResponseEntity<Map<String, String>> getFilePreviewUrl(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long fileId) throws IOException {
+        Long memberId = userDetails.getId();
+        log.info("파일 미리보기 URL 조회 - fileId: {}, memberId: {}", fileId, memberId);
+        if (!chatFileDAO.isAccessibleByMember(fileId, memberId)) {
+            return ResponseEntity.status(403).body(Map.of("error", "접근 권한 없음"));
+        }
         Optional<FileVO> fileOpt = fileDAO.findById(fileId);
         if (fileOpt.isEmpty()) return ResponseEntity.notFound().build();
         FileVO file = fileOpt.get();

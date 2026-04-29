@@ -122,13 +122,13 @@ const ChatService = (() => {
         return handleResponse(response, "반응 추가 실패");
     };
 
-    // 13.반응 삭제
+    // 13.반응 삭제 (DELETE에 body 의존하면 일부 프록시가 제거하므로 query param 사용)
     const removeReaction = async (messageId, emoji, conversationId) => {
-        const response = await fetch(`/api/v1/chat/messages/${messageId}/reactions`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ emoji, conversationId }),
-        });
+        const params = new URLSearchParams({ emoji, conversationId });
+        const response = await fetch(
+            `/api/v1/chat/messages/${messageId}/reactions?${params.toString()}`,
+            { method: "DELETE" }
+        );
         return handleResponse(response, "반응 삭제 실패");
     };
 
