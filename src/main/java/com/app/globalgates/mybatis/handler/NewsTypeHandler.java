@@ -18,7 +18,7 @@ public class NewsTypeHandler implements TypeHandler<NewsType> {
     @Override
     public NewsType getResult(ResultSet rs, String columnName) throws SQLException {
         return switch (rs.getString(columnName)) {
-            case "genetal" -> NewsType.GENERAL;
+            case "general" -> NewsType.GENERAL;
             case "emergency" -> NewsType.EMERGENCY;
             default -> null;
         };
@@ -27,7 +27,7 @@ public class NewsTypeHandler implements TypeHandler<NewsType> {
     @Override
     public NewsType getResult(ResultSet rs, int columnIndex) throws SQLException {
         return switch (rs.getString(columnIndex)) {
-            case "genetal" -> NewsType.GENERAL;
+            case "general" -> NewsType.GENERAL;
             case "emergency" -> NewsType.EMERGENCY;
             default -> null;
         };
@@ -36,7 +36,7 @@ public class NewsTypeHandler implements TypeHandler<NewsType> {
     @Override
     public NewsType getResult(CallableStatement cs, int columnIndex) throws SQLException {
         return switch (cs.getString(columnIndex)) {
-            case "genetal" -> NewsType.GENERAL;
+            case "general" -> NewsType.GENERAL;
             case "emergency" -> NewsType.EMERGENCY;
             default -> null;
         };

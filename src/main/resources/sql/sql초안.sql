@@ -529,6 +529,12 @@ constraint fk_subscription_member foreign key(member_id)
 references tbl_member(id)
 );
 
+alter table tbl_subscription add column next_tier varchar(255) default null;
+alter table tbl_subscription add column next_billing_cycle varchar(255) default null;
+
+ALTER TABLE tbl_post ADD COLUMN IF NOT EXISTS product_id bigint;
+
+
 -- [44] tbl_payment  ─ 결제 내역
 -- 결제 처리 상태
 create type payment_status as enum (

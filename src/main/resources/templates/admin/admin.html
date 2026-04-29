@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8"/>
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- 맨위 검정바 -->
+<!-- 상단 바 -->
 <div class="top-bar">
     <div class="top-left">
         <span class="top-title">Admin</span>
@@ -72,7 +72,7 @@
             </div>
 
             <div class="each-box">
-                <div class="box-title">통계 · 차트</div>
+                <div class="box-title">통계 및 차트</div>
                 <div class="each-menu">
                     <img src="/images/admin/Icon=trending-up.png">
                     회원
@@ -89,19 +89,25 @@
 
         </nav>
         <div class="go-main">
-            <a href="../admin.html">← 메인으로</a>
+            <a href="/main/main">메인으로</a>
         </div>
     </aside>
 
-    <!-- 각 탭 컨텐츠 -->
+    <!-- 메인 콘텐츠-->
     <main class="content">
 
-        <!-- 회원 관리/기본탭/1번탭 -->
+        <!-- 회원 관리 -->
         <div class="page active" id="page-member-list">
             <div class="nw-module">
                 <div class="nw-module-header">
                     <div class="nw-module-title">회원 관리</div>
                     <div class="nw-module-header-actions">
+                        <select class="filter-select" id="filterMemberSubscription">
+                            <option value="all">구독상태 전체</option>
+                            <option value="subscribed">구독중</option>
+                            <option value="expired">구독만료</option>
+                            <option value="none">미구독</option>
+                        </select>
                         <select class="filter-select" id="filterMemberGrade">
                             <option value="all">등급 전체</option>
                             <option value="free">free</option>
@@ -111,8 +117,8 @@
                         </select>
                         <select class="filter-select" id="filterMemberStatus">
                             <option value="all">상태 전체</option>
-                            <option value="활동중">활동중</option>
-                            <option value="정지됨">정지됨</option>
+                            <option value="활성">활성</option>
+                            <option value="비활성">비활성</option>
                         </select>
                         <input class="search-input" type="text" placeholder="이름 또는 이메일 검색"/>
                         <button class="btn-primary">검색</button>
@@ -126,7 +132,7 @@
                                 <div class="div-th">이름</div>
                                 <div class="div-th">이메일</div>
                                 <div class="div-th">회사</div>
-                                <div class="div-th">회원등급</div>
+                                <div class="div-th">등급</div>
                                 <div class="div-th">상태</div>
                                 <div class="div-th">가입일</div>
                             </div>
@@ -134,60 +140,61 @@
                         <div class="div-tbody" id="memberTbody">
                             <div class="div-tr">
                                 <div class="div-td">1</div>
-                                <div class="div-td">이정식</div>
+                                <div class="div-td">이정민</div>
                                 <div class="div-td td-email">sokkomann@gmail.com</div>
                                 <div class="div-td">GG무역</div>
                                 <div class="div-td"><span class="badge badge-free">free</span></div>
-                                <div class="div-td"><span class="badge badge-active">활동중</span></div>
+                                <div class="div-td"><span class="badge badge-active">활성</span></div>
                                 <div class="div-td">2025-01-15</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td">2</div>
                                 <div class="div-td">박하민</div>
                                 <div class="div-td td-email">sokkomann@gmail.com</div>
-                                <div class="div-td">한국무역</div>
+                                <div class="div-td">성동무역</div>
                                 <div class="div-td"><span class="badge badge-proplus">pro+</span></div>
-                                <div class="div-td"><span class="badge badge-active">활동중</span></div>
+                                <div class="div-td"><span class="badge badge-active">활성</span></div>
                                 <div class="div-td">2025-02-03</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td">3</div>
-                                <div class="div-td">김민중</div>
+                                <div class="div-td">김민정</div>
                                 <div class="div-td td-email">sokkomann@gmail.com</div>
                                 <div class="div-td">망고상사</div>
                                 <div class="div-td"><span class="badge badge-free">free</span></div>
-                                <div class="div-td"><span class="badge badge-active">활동중</span></div>
+                                <div class="div-td"><span class="badge badge-active">활성</span></div>
                                 <div class="div-td">2025-02-18</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td">4</div>
-                                <div class="div-td">김윤찬</div>
+                                <div class="div-td">김소담</div>
                                 <div class="div-td td-email">sokkomann@gmail.com</div>
-                                <div class="div-td">글로벌물산</div>
+                                <div class="div-td">글로벌해운물산</div>
                                 <div class="div-td"><span class="badge badge-pro">pro</span></div>
-                                <div class="div-td"><span class="badge badge-reject">정지됨</span></div>
+                                <div class="div-td"><span class="badge badge-reject">비활성</span></div>
                                 <div class="div-td">2025-03-01</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td">5</div>
-                                <div class="div-td">홍성호</div>
+                                <div class="div-td">최성훈</div>
                                 <div class="div-td td-email">sokkomann@gmail.com</div>
-                                <div class="div-td">밥먹고수출</div>
+                                <div class="div-td">바른고고수출</div>
                                 <div class="div-td"><span class="badge badge-free">free</span></div>
-                                <div class="div-td"><span class="badge badge-reject">정지됨</span></div>
+                                <div class="div-td"><span class="badge badge-reject">비활성</span></div>
                                 <div class="div-td">2025-03-05</div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="memberPagination"></div>
             </div>
         </div>
 
-        <!--게시물 관리/2번탭 -->
+        <!-- 게시물 관리 -->
         <div class="page" id="page-post-list">
             <div class="post-search-bar">
-                <label class="post-filter-check"><input type="checkbox" id="showHiddenOnly"/> 숨김글만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showVisibleOnly"/> 공개글만보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showHiddenOnly"/> 숨김글만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showVisibleOnly"/> 공개글만 보기</label>
                 <select class="filter-select" id="filterPostType">
                     <option value="all">글종류 전체</option>
                     <option value="구매글">구매글</option>
@@ -195,17 +202,17 @@
                     <option value="Q&A">Q&amp;A</option>
                 </select>
                 <select class="filter-select" id="filterPostCategory">
-                    <option value="all">물품종류 전체</option>
+                    <option value="all">상품종류 전체</option>
+                    <option value="전자재료">전자재료</option>
                     <option value="원자재">원자재</option>
-                    <option value="전자">전자</option>
-                    <option value="농산물">농산물</option>
+                    <option value="특산물">특산물</option>
                     <option value="섬유/의류">섬유/의류</option>
                     <option value="화학">화학</option>
                     <option value="기계/설비">기계/설비</option>
                     <option value="식품">식품</option>
                     <option value="기타">기타</option>
                 </select>
-                <input class="search-input" type="text" placeholder="제목 또는 작성자 검색"/>
+                <input class="search-input" type="text" placeholder="작성자 또는 내용 검색"/>
                 <button class="btn-primary">검색</button>
             </div>
             <div class="nw-module">
@@ -220,99 +227,81 @@
                 <div class="nw-table">
                     <div class="div-table">
                         <div class="div-thead">
-                            <div class="div-tr">
-                                <div class="div-th"><input type="checkbox" id="checkAll"></div>
-                                <div class="div-th">번호</div>
-                                <div class="div-th">작성자</div>
-                                <div class="div-th">제목</div>
-                                <div class="div-th">글종류</div>
-                                <div class="div-th">물품종류</div>
-                                <div class="div-th">작성일</div>
-                            </div>
-                        </div>
-                        <div class="div-tbody" id="postTbody">
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">1</div>
-                                <div class="div-td">김윤찬</div>
-                                <div class="div-td">
-                                    <div class="post-title">철강 원자재 수입 철강 원자재 수입</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-buy">구매글</span></div>
-                                <div class="div-td">원자재</div>
-                                <div class="div-td">2025-03-05</div>
-                            </div>
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">2</div>
-                                <div class="div-td">김민중</div>
-                                <div class="div-td">
-                                    <div class="post-title">수출할게요수출할게요수출할게요수출할게요수출할게요수출할게요수출할게요수출할게요수출할게요수출할게요</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-sale">판매글</span></div>
-                                <div class="div-td">전자</div>
-                                <div class="div-td">2025-03-04</div>
-                            </div>
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">3</div>
-                                <div class="div-td">누구1</div>
-                                <div class="div-td">
-                                    <div class="post-title">통관 절차 문의드림통관 절차 문의드림</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-qna">Q&amp;A</span></div>
-                                <div class="div-td">기타</div>
-                                <div class="div-td">2025-03-03</div>
-                            </div>
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">4</div>
-                                <div class="div-td">홍성호</div>
-                                <div class="div-td">
-                                    <div class="post-title">원두사요</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-buy">구매글</span></div>
-                                <div class="div-td">식품</div>
-                                <div class="div-td">2025-03-02</div>
-                            </div>
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">5</div>
-                                <div class="div-td">박하민</div>
-                                <div class="div-td">
-                                    <div class="post-title">안녕하세요 이것도팔고 저것도팔고 뭐팔고 다팔고</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-sale">판매글</span></div>
-                                <div class="div-td">섬유/의류</div>
-                                <div class="div-td">2025-03-01</div>
-                            </div>
-                            <div class="div-tr">
-                                <div class="div-td"><input type="checkbox"/></div>
-                                <div class="div-td">6</div>
-                                <div class="div-td">이정식</div>
-                                <div class="div-td">
-                                    <div class="post-title">수입합니다수입합니다수입합니다수입합니다수입합니다</div>
-                                </div>
-                                <div class="div-td"><span class="badge badge-qna">Q&amp;A</span></div>
-                                <div class="div-td">기타</div>
-                                <div class="div-td">2025-02-28</div>
+	                            <div class="div-tr">
+	                                <div class="div-th"><input type="checkbox" id="checkAll"></div>
+	                                <div class="div-th">번호</div>
+	                                <div class="div-th">작성자</div>
+	                                <div class="div-th">글종류</div>
+	                                <div class="div-th">상품종류</div>
+	                                <div class="div-th">작성일</div>
+	                            </div>
+	                        </div>
+	                        <div class="div-tbody" id="postTbody">
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">1</div>
+	                                <div class="div-td">김소담</div>
+	                                <div class="div-td"><span class="badge badge-buy">구매글</span></div>
+	                                <div class="div-td">전자재료</div>
+	                                <div class="div-td">2025-03-05</div>
+	                            </div>
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">2</div>
+	                                <div class="div-td">김민정</div>
+	                                <div class="div-td"><span class="badge badge-sale">판매글</span></div>
+	                                <div class="div-td">원자재</div>
+	                                <div class="div-td">2025-03-04</div>
+	                            </div>
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">3</div>
+	                                <div class="div-td">이광우</div>
+	                                <div class="div-td"><span class="badge badge-qna">Q&amp;A</span></div>
+	                                <div class="div-td">기타</div>
+	                                <div class="div-td">2025-03-03</div>
+	                            </div>
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">4</div>
+	                                <div class="div-td">최성훈</div>
+	                                <div class="div-td"><span class="badge badge-buy">구매글</span></div>
+	                                <div class="div-td">식품</div>
+	                                <div class="div-td">2025-03-02</div>
+	                            </div>
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">5</div>
+	                                <div class="div-td">박하민</div>
+	                                <div class="div-td"><span class="badge badge-sale">판매글</span></div>
+	                                <div class="div-td">섬유/의류</div>
+	                                <div class="div-td">2025-03-01</div>
+	                            </div>
+	                            <div class="div-tr">
+	                                <div class="div-td"><input type="checkbox"/></div>
+	                                <div class="div-td">6</div>
+	                                <div class="div-td">이정민</div>
+	                                <div class="div-td"><span class="badge badge-qna">Q&amp;A</span></div>
+	                                <div class="div-td">기타</div>
+	                                <div class="div-td">2025-02-28</div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="postPagination"></div>
             </div>
         </div>
 
-        <!-- 뉴스 목록/3번탭 -->
+        <!-- 뉴스 목록 -->
         <div class="page" id="page-news-list">
             <div class="news-search-bar">
-                <label class="post-filter-check"><input type="checkbox" id="showHiddenNewsOnly"/> 숨김글만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showVisibleNewsOnly"/> 공개글만보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showHiddenNewsOnly"/> 숨김글만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showVisibleNewsOnly"/> 공개글만 보기</label>
                 <select class="filter-select" id="filterNewsCategory">
                     <option value="all">카테고리 전체</option>
                     <option value="무역동향">무역동향</option>
                     <option value="수출입">수출입</option>
-                    <option value="원자재">원자재</option>
+                    <option value="전자재료">전자재료</option>
                     <option value="정책">정책</option>
                     <option value="경제">경제</option>
                     <option value="기타">기타</option>
@@ -349,7 +338,7 @@
                                 <div class="div-td">1</div>
                                 <div class="div-td">BBC</div>
                                 <div class="div-td">
-                                    <div class="news-title">뉴스제목1뉴스제목1뉴스제목1뉴스제목1뉴스제목1뉴스제목1뉴스제목1뉴스제목1뉴스제목1</div>
+                                    <div class="news-title">무역 뉴스 제목 1</div>
                                 </div>
                                 <div class="div-td">무역동향</div>
                                 <div class="div-td">1,240</div>
@@ -360,9 +349,9 @@
                                 <div class="div-td">2</div>
                                 <div class="div-td">CNN</div>
                                 <div class="div-td">
-                                    <div class="news-title">뉴스제목2</div>
+                                    <div class="news-title">무역 뉴스 제목 2</div>
                                 </div>
-                                <div class="div-td">원자재</div>
+                                <div class="div-td">전자재료</div>
                                 <div class="div-td">890</div>
                                 <div class="div-td">2025-03-07</div>
                             </div>
@@ -371,7 +360,7 @@
                                 <div class="div-td">3</div>
                                 <div class="div-td">BBC</div>
                                 <div class="div-td">
-                                    <div class="news-title">뉴스제목3</div>
+                                    <div class="news-title">무역 뉴스 제목 3</div>
                                 </div>
                                 <div class="div-td">정책</div>
                                 <div class="div-td">654</div>
@@ -382,7 +371,7 @@
                                 <div class="div-td">4</div>
                                 <div class="div-td">Bloomberg</div>
                                 <div class="div-td">
-                                    <div class="news-title">뉴스제목4</div>
+                                    <div class="news-title">무역 뉴스 제목 4</div>
                                 </div>
                                 <div class="div-td">수출입</div>
                                 <div class="div-td">654</div>
@@ -393,7 +382,7 @@
                                 <div class="div-td">5</div>
                                 <div class="div-td">CNN</div>
                                 <div class="div-td">
-                                    <div class="news-title">뉴스제목5</div>
+                                    <div class="news-title">무역 뉴스 제목 5</div>
                                 </div>
                                 <div class="div-td">경제</div>
                                 <div class="div-td">890</div>
@@ -402,14 +391,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="reportMemberPagination"></div>
             </div>
         </div>
 
-        <!-- 뉴스 등록/4번탭 -->
+        <!-- 뉴스 등록/4踰덊꺆 -->
         <div class="page" id="page-news-write">
             <div class="news-write-layout">
 
-                <!-- 뉴스등록의 왼쪽부분 -->
+                <!-- 뉴스 등록 왼쪽 입력 영역 -->
                 <div class="news-write-form">
                     <div class="nw-module">
                         <div class="nw-module-header">
@@ -420,10 +410,10 @@
                             <div class="form-group">
                                 <label class="form-label">뉴스 원문 URL</label>
                                 <div class="news-url-row">
-                                    <input class="form-input" type="url" id="newsUrl" placeholder="요약할 뉴스의 링크를 입력하세요"/>
+                                    <input class="form-input" type="url" id="newsUrl" placeholder="요약할 뉴스 URL을 입력해주세요"/>
                                     <button class="btn-ai" id="aiBtn">AI 요약 적용</button>
                                 </div>
-                                <span class="nw-hint">뉴스 URL을 첨부하고 버튼을 눌러보세요</span>
+                                <span class="nw-hint">뉴스 URL을 입력하고 버튼을 눌러보세요</span>
                             </div>
 
                             <div class="ai-box" id="aiBox">
@@ -436,7 +426,7 @@
                             <div class="form-group">
                                 <label class="form-label">제목</label>
                                 <input class="form-input" type="text" id="newsTitle"
-                                       placeholder="제목을 입력하거나 AI 요약을 적용하세요"/>
+                                       placeholder="제목을 입력하거나 AI 요약을 적용해주세요"/>
                             </div>
 
                             <div class="form-group">
@@ -444,7 +434,7 @@
                                 <select class="form-select" id="newsCategory">
                                     <option>무역동향</option>
                                     <option>수출입</option>
-                                    <option>원자재</option>
+                                    <option>전자재료</option>
                                     <option>정책</option>
                                     <option>경제</option>
                                     <option>기타</option>
@@ -454,7 +444,7 @@
                             <div class="form-group">
                                 <label class="form-label">내용 <span class="nw-hint">(AI 요약 결과가 여기에 채워집니다)</span></label>
                                 <textarea class="form-textarea" id="newsContent"
-                                          placeholder="내용을 입력하거나 AI 요약을 적용하세요"></textarea>
+                                          placeholder="내용을 입력하거나 AI 요약을 적용해주세요"></textarea>
                             </div>
 
                             <div class="form-group">
@@ -472,7 +462,7 @@
                     </div>
                 </div>
 
-                <!-- 뉴스등록 오른쪽(미리보기) -->
+                <!-- 뉴스 등록 오른쪽 미리보기 -->
                 <div class="news-write-preview">
                     <div class="nw-module preview-sticky">
                         <div class="nw-module-header">
@@ -482,8 +472,7 @@
                             <div class="preview-card">
                                 <div class="pt-title" id="previewTitle">제목이 여기에 표시됩니다</div>
                                 <div class="pt-updated">Last updated YYYY-MM-DD</div>
-                                <div class="pt-summary" id="previewContent">내용이 여기에 표시됩니다. AI 요약 또는 직접 입력하면 이곳에 미리보기가
-                                    나타납니다.
+                                <div class="pt-summary" id="previewContent">내용이 여기에 표시됩니다. AI 요약 또는 직접 입력을 하면 미리보기가 업데이트됩니다.
                                 </div>
                                 <div class="pt-disclaimer" id="previewSource">출처</div>
                                 <span id="previewCategory">무역동향</span>
@@ -495,17 +484,17 @@
             </div>
         </div>
 
-        <!-- 회원 신고/5번탭 -->
+        <!-- 회원 신고/5踰덊꺆 -->
         <div class="page" id="page-report-member">
             <div class="report-search-bar">
-                <label class="post-filter-check"><input type="checkbox" id="showPendingMemberOnly"/> 심사중만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showDoneMemberOnly"/> 승인됨만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showRejectedMemberOnly"/> 반려됨만보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showPendingMemberOnly"/> 심사중만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showDoneMemberOnly"/> 승인만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showRejectedMemberOnly"/> 반려만 보기</label>
                 <select class="filter-select" id="filterReportMember">
                     <option value="all">전체</option>
                     <option value="pending">심사중</option>
-                    <option value="done">승인됨</option>
-                    <option value="rejected">반려됨</option>
+                    <option value="applied">승인</option>
+                    <option value="rejected">반려</option>
                 </select>
                 <input class="search-input" type="text" placeholder="신고자 또는 신고대상 검색"/>
                 <button class="btn-primary">검색</button>
@@ -525,78 +514,79 @@
                             <div class="div-tr">
                                 <div class="div-th"><input type="checkbox" id="reportMemberCheckAll"></div>
                                 <div class="div-th">번호</div>
-                                <div class="div-th">신고자</div>
+                                <div class="div-th">신고일</div>
                                 <div class="div-th">신고대상</div>
                                 <div class="div-th">신고사유</div>
                                 <div class="div-th">상태</div>
-                                <div class="div-th">신고일</div>
+                                <div class="div-th">신고자</div>
                             </div>
                         </div>
                         <div class="div-tbody" id="reportMemberTbody">
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">1</div>
-                                <div class="div-td">김민중</div>
+                                <div class="div-td">김민정</div>
                                 <div class="div-td">김망고</div>
                                 <div class="div-td">부적절한 언어를 사용함</div>
-                                <div class="div-td"><span class="badge badge-pending">심사중</span></div>
+                                <div class="div-td"><span class="badge badge-pending">대기</span></div>
                                 <div class="div-td">2025-03-08</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">2</div>
-                                <div class="div-td">김민중</div>
-                                <div class="div-td">정보성</div>
-                                <div class="div-td">신원 불일치 혹은 허위기재</div>
-                                <div class="div-td"><span class="badge badge-pending">심사중</span></div>
+                                <div class="div-td">김민정</div>
+                                <div class="div-td">정보은</div>
+                                <div class="div-td">회원 불일치 및 허위 기재</div>
+                                <div class="div-td"><span class="badge badge-pending">대기</span></div>
                                 <div class="div-td">2025-03-07</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">3</div>
-                                <div class="div-td">김윤찬</div>
+                                <div class="div-td">김소담</div>
                                 <div class="div-td">박하민</div>
-                                <div class="div-td">권한 남용 및 부정 경쟁</div>
-                                <div class="div-td"><span class="badge badge-done">승인됨</span></div>
+                                <div class="div-td">권한 남용 및 부적절 행동</div>
+                                <div class="div-td"><span class="badge badge-done">승인</span></div>
                                 <div class="div-td">2025-03-06</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">4</div>
-                                <div class="div-td">이정식</div>
-                                <div class="div-td">홍성호</div>
-                                <div class="div-td">타인 혹은 기업을 사칭함</div>
-                                <div class="div-td"><span class="badge badge-reject">반려됨</span></div>
+                                <div class="div-td">이정민</div>
+                                <div class="div-td">최성훈</div>
+                                <div class="div-td">도배 및 기업명 사칭</div>
+                                <div class="div-td"><span class="badge badge-reject">반려</span></div>
                                 <div class="div-td">2025-03-05</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">5</div>
-                                <div class="div-td">홍성호</div>
+                                <div class="div-td">최성훈</div>
                                 <div class="div-td">박하민</div>
                                 <div class="div-td">부적절한 언어를 사용함</div>
-                                <div class="div-td"><span class="badge badge-pending">심사중</span></div>
+                                <div class="div-td"><span class="badge badge-pending">대기</span></div>
                                 <div class="div-td">2025-03-04</div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="admin-pagination" id="reportPostPagination"></div>
             </div>
         </div>
 
-        <!-- 글 신고/6번탭 -->
+        <!-- 글 신고/6踰덊꺆 -->
         <div class="page" id="page-report-post">
             <div class="report-search-bar">
-                <label class="post-filter-check"><input type="checkbox" id="showPendingPostOnly"/> 심사중만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showDonePostOnly"/> 승인됨만보기</label>
-                <label class="post-filter-check"><input type="checkbox" id="showRejectedPostOnly"/> 반려됨만보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showPendingPostOnly"/> 심사중만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showDonePostOnly"/> 승인만 보기</label>
+                <label class="post-filter-check"><input type="checkbox" id="showRejectedPostOnly"/> 반려만 보기</label>
                 <select class="filter-select" id="filterReportPost">
                     <option value="all">전체</option>
                     <option value="pending">심사중</option>
-                    <option value="done">승인됨</option>
-                    <option value="rejected">반려됨</option>
+                    <option value="applied">승인</option>
+                    <option value="rejected">반려</option>
                 </select>
-                <input class="search-input" type="text" placeholder="신고자 또는 글 제목 검색"/>
+                <input class="search-input" type="text" placeholder="신고자 검색"/>
                 <button class="btn-primary">검색</button>
             </div>
             <div class="nw-module">
@@ -625,23 +615,23 @@
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">1</div>
-                                <div class="div-td">김민중</div>
+                                <div class="div-td">김민정</div>
                                 <div class="div-td">
-                                    <div class="report-post-title">철강 원자재 수입 업체 찾습니다</div>
+                                    <div class="report-post-title">친환경 전자재료 수입 업체 찾습니다</div>
                                 </div>
                                 <div class="div-td">실제 존재하지 않는 허위 매물 게시</div>
-                                <div class="div-td"><span class="badge badge-pending">심사중</span></div>
+                                <div class="div-td"><span class="badge badge-pending">대기</span></div>
                                 <div class="div-td">2025-03-08</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">2</div>
-                                <div class="div-td">이정식</div>
+                                <div class="div-td">이정민</div>
                                 <div class="div-td">
                                     <div class="report-post-title">HS코드 분류 기준 질문</div>
                                 </div>
                                 <div class="div-td">동일 내용 반복 게시 (스팸)</div>
-                                <div class="div-td"><span class="badge badge-pending">심사중</span></div>
+                                <div class="div-td"><span class="badge badge-pending">대기</span></div>
                                 <div class="div-td">2025-03-07</div>
                             </div>
                             <div class="div-tr">
@@ -652,18 +642,18 @@
                                     <div class="report-post-title">의류 OEM 생산 제안합니다</div>
                                 </div>
                                 <div class="div-td">수출 금지 품목 거래 시도</div>
-                                <div class="div-td"><span class="badge badge-done">승인됨</span></div>
+                                <div class="div-td"><span class="badge badge-done">승인</span></div>
                                 <div class="div-td">2025-03-06</div>
                             </div>
                             <div class="div-tr">
                                 <div class="div-td"><input type="checkbox"/></div>
                                 <div class="div-td">4</div>
-                                <div class="div-td">김윤찬</div>
+                                <div class="div-td">김소담</div>
                                 <div class="div-td">
-                                    <div class="report-post-title">전자부품 수출 파트너 모집</div>
+                                    <div class="report-post-title">원자재 부품 수출 파트너 모집</div>
                                 </div>
-                                <div class="div-td">가격 허위 표기 의심</div>
-                                <div class="div-td"><span class="badge badge-reject">반려됨</span></div>
+                                <div class="div-td">가격 허위 표기 및 과장</div>
+                                <div class="div-td"><span class="badge badge-reject">반려</span></div>
                                 <div class="div-td">2025-03-05</div>
                             </div>
                         </div>
@@ -672,47 +662,47 @@
             </div>
         </div>
 
-        <!-- 광고 관리 (portals[6]) -->
+        <!-- 광고 관리 -->
 
-        <!-- 통계 회원 (portals[7]) -->
+        <!-- 통계 회원 -->
         <div class="page" id="page-stats-member">
             <div class="stats-data-grid">
                 <div class="stats-data-card">
                     <div class="stats-data-label">총 회원수</div>
-                    <div class="stats-data-value">2,160</div>
+                    <div class="stats-data-value" id="statsMemberTotal">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">이번달 가입</div>
-                    <div class="stats-data-value">88</div>
+                    <div class="stats-data-label">이번 달 가입</div>
+                    <div class="stats-data-value" id="statsMemberJoined">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">이번달 탈퇴</div>
-                    <div class="stats-data-value">78</div>
+                    <div class="stats-data-label">이번 달 탈퇴</div>
+                    <div class="stats-data-value" id="statsMemberDropped">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">최다이용시간</div>
-                    <div class="stats-data-value">오후 6시</div>
+                    <div class="stats-data-label">최근 30일 최다 이용 시간</div>
+                    <div class="stats-data-value" id="statsMemberBusyHour">-</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">free</div>
-                    <div class="stats-data-value">1,420</div>
+                    <div class="stats-data-value" id="statsMemberFree">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">pro</div>
-                    <div class="stats-data-value">480</div>
+                    <div class="stats-data-value" id="statsMemberPro">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">pro+</div>
-                    <div class="stats-data-value">180</div>
+                    <div class="stats-data-value" id="statsMemberProPlus">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">expert</div>
-                    <div class="stats-data-value">80</div>
+                    <div class="stats-data-value" id="statsMemberExpert">0</div>
                 </div>
             </div>
             <div class="nw-module">
                 <div class="nw-module-header">
-                    <div class="nw-module-title">신규/탈퇴 회원 추이</div>
+                    <div class="nw-module-title">가입/탈퇴 회원 추이</div>
                     <div class="stats-filter-bar" id="filterTrend">
                         <button class="stats-filter-btn" data-period="7d">최근 7일</button>
                         <button class="stats-filter-btn" data-period="30d">최근 30일</button>
@@ -748,29 +738,29 @@
             </div>
         </div>
 
-        <!-- 통계 게시글 (portals[7]) -->
+        <!-- 통계 게시글 -->
         <div class="page" id="page-stats-post">
             <div class="stats-data-grid">
                 <div class="stats-data-card">
-                    <div class="stats-data-label">총 게시글</div>
-                    <div class="stats-data-value">2,321</div>
+                    <div class="stats-data-label">최근 6개월 게시글</div>
+                    <div class="stats-data-value" id="statsPostTotal">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">이번달</div>
-                    <div class="stats-data-value">178</div>
+                    <div class="stats-data-label">이번 달 등록</div>
+                    <div class="stats-data-value" id="statsPostMonthly">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">월 평균</div>
-                    <div class="stats-data-value">193</div>
+                    <div class="stats-data-label">최근 30일 일 평균 등록</div>
+                    <div class="stats-data-value" id="statsPostDailyAverage">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">최다 카테고리</div>
-                    <div class="stats-value-sm">원자재</div>
+                    <div class="stats-data-label">최근 6개월 최다 카테고리</div>
+                    <div class="stats-value-sm" id="statsPostTopCategory">-</div>
                 </div>
             </div>
             <div class="nw-module">
                 <div class="nw-module-header">
-                    <div class="nw-module-title">월별 게시글 수</div>
+                    <div class="nw-module-title">월별 게시글 추이</div>
                     <div class="stats-filter-bar" id="filterPostMonthly">
                         <button class="stats-filter-btn" data-period="7d">최근 7일</button>
                         <button class="stats-filter-btn" data-period="30d">최근 30일</button>
@@ -796,37 +786,37 @@
             </div>
         </div>
 
-        <!-- 통계 신고 (portals[8]) -->
+        <!-- 통계 신고 -->
         <div class="page" id="page-stats-report">
             <div class="stats-data-grid">
                 <div class="stats-data-card">
                     <div class="stats-data-label">총 신고</div>
-                    <div class="stats-data-value">153</div>
+                    <div class="stats-data-value" id="statsReportTotal">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">회원 신고</div>
-                    <div class="stats-data-value">75</div>
+                    <div class="stats-data-value" id="statsReportMember">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">글 신고</div>
-                    <div class="stats-data-value">78</div>
+                    <div class="stats-data-value" id="statsReportPost">0</div>
                 </div>
                 <div class="stats-data-card">
                     <div class="stats-data-label">심사중</div>
-                    <div class="stats-data-value">15</div>
+                    <div class="stats-data-value" id="statsReportPending">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">승인됨</div>
-                    <div class="stats-data-value">42</div>
+                    <div class="stats-data-label">승인</div>
+                    <div class="stats-data-value" id="statsReportApplied">0</div>
                 </div>
                 <div class="stats-data-card">
-                    <div class="stats-data-label">반려됨</div>
-                    <div class="stats-data-value">18</div>
+                    <div class="stats-data-label">반려</div>
+                    <div class="stats-data-value" id="statsReportRejected">0</div>
                 </div>
             </div>
             <div class="nw-module">
                 <div class="nw-module-header">
-                    <div class="nw-module-title">월별 신고 수</div>
+                    <div class="nw-module-title">월별 신고 추이</div>
                     <div class="stats-filter-bar" id="filterReportMonthly">
                         <button class="stats-filter-btn" data-period="7d">최근 7일</button>
                         <button class="stats-filter-btn" data-period="30d">최근 30일</button>
@@ -865,7 +855,7 @@
             </div>
         </div>
 
-        <!-- 통계 광고 (portals[10]) -->
+        <!-- 통계 광고 -->
 
 
     </main>
@@ -880,41 +870,42 @@
         </div>
         <div class="modal-body">
             <div class="module-card">
-                <div class="modal-section-title">Member Information</div>
+                <div class="modal-section-title">회원 정보</div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Name</div>
+                    <div class="modal-field-label">이름</div>
                     <div class="modal-field-value" id="name"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Age</div>
+                    <div class="modal-field-label">생년월일</div>
                     <div class="modal-field-value" id="age"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Email</div>
+                    <div class="modal-field-label">이메일</div>
                     <div class="modal-email" id="email"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Phone</div>
+                    <div class="modal-field-label">전화번호</div>
                     <div class="modal-field-value" id="phone"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Company</div>
+                    <div class="modal-field-label">회사</div>
                     <div class="modal-field-value" id="company"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">JoinedDate</div>
+                    <div class="modal-field-label">가입일</div>
                     <div class="modal-field-value" id="joinDate"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Grade</div>
+                    <div class="modal-field-label">회원 구분</div>
                     <div class="modal-field-value" id="memberTypeSelect"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">Status</div>
+                    <div class="modal-field-label">상태</div>
                     <div class="modal-field-value">
                         <select class="status-select" id="statusSelect">
-                            <option value="active">활동중</option>
-                            <option value="suspended">정지됨</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                            <option value="banned">정지</option>
                         </select>
                     </div>
                 </div>
@@ -936,36 +927,31 @@
         </div>
         <div class="modal-body">
             <div class="module-card">
-                <div class="modal-section-title">Post Information</div>
+                <div class="modal-section-title">게시물 정보</div>
                 <div class="modal-field-row">
                     <div class="modal-field-label">작성자</div>
                     <div class="modal-field-readonly" id="peAuthor"></div>
                 </div>
-                <div class="modal-field-row">
-                    <div class="modal-field-label">제목</div>
-                    <div class="modal-field-readonly" id="peTitle"></div>
-                </div>
                 <div class="modal-field-row-top">
                     <div class="modal-field-label">내용</div>
-                    <div class="modal-field-readonly" id="peContent"></div>
+                    <textarea class="form-textarea" id="peContent" rows="6" readonly></textarea>
                 </div>
                 <div class="modal-field-row">
                     <div class="modal-field-label">글종류</div>
                     <div class="modal-field-value">
-                        <select class="status-select" id="peType">
-                            <option value="판매글">판매글</option>
-                            <option value="구매글">구매글</option>
-                            <option value="Q&A">Q&amp;A</option>
+                        <select class="status-select" id="peType" disabled>
+                            <option value="product">상품글</option>
+                            <option value="general">일반글</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label">물품종류</div>
+                    <div class="modal-field-label">상품종류</div>
                     <div class="modal-field-value">
-                        <select class="status-select" id="peCategory">
+                        <select class="status-select" id="peCategory" disabled>
+                            <option>전자재료</option>
                             <option>원자재</option>
-                            <option>전자</option>
-                            <option>농산물</option>
+                            <option>특산물</option>
                             <option>섬유/의류</option>
                             <option>화학</option>
                             <option>기계/설비</option>
@@ -1009,7 +995,7 @@
         </div>
         <div class="modal-body">
             <div class="module-card">
-                <p class="modal-section-title">News Information</p>
+                <p class="modal-section-title">뉴스 정보</p>
                 <div class="modal-field-row">
                     <div class="modal-field-label">제목</div>
                     <div class="modal-field-value"><textarea class="form-textarea" id="newsDetailTitle"></textarea>
@@ -1026,7 +1012,7 @@
                         <select class="form-select" id="newsDetailCategory">
                             <option>무역동향</option>
                             <option>수출입</option>
-                            <option>원자재</option>
+                            <option>전자재료</option>
                             <option>정책</option>
                             <option>경제</option>
                             <option>기타</option>
@@ -1048,16 +1034,16 @@
 </div>
 
 
-<!-- 신고 심사 모달 -->
+<!-- 신고 상세 모달 -->
 <div class="modal-overlay off" id="modalReportDetail">
     <div class="modal">
         <div class="modal-header">
-            <h3 id="modalReportTitle">신고 심사</h3>
+            <h3 id="modalReportTitle">신고 상세</h3>
             <button class="modal-close" id="modalReportClose">✕</button>
         </div>
         <div class="modal-body">
             <div class="module-card">
-                <p class="modal-section-title">Report Information</p>
+                <p class="modal-section-title">신고 정보</p>
                 <div class="modal-field-row">
                     <div class="modal-field-label">신고자</div>
                     <div class="modal-field-value" id="reportReporter"></div>
@@ -1067,7 +1053,7 @@
                     <div class="modal-field-value" id="reportDate"></div>
                 </div>
                 <div class="modal-field-row">
-                    <div class="modal-field-label" id="reportTargetLabel">피신고자</div>
+                    <div class="modal-field-label" id="reportTargetLabel">신고대상</div>
                     <div class="modal-field-value" id="reportTarget"></div>
                 </div>
                 <div class="modal-field-row-top">
@@ -1077,10 +1063,14 @@
                 <div class="modal-field-row-top">
                     <div class="modal-field-label">첨부 이미지</div>
                     <div class="modal-field-value">
-                        <div class="report-attach-imgs" id="reportImages">
-                            <img class="report-attach-thumb" src="/images/admin/file-ex.PNG">
-                            <img class="report-attach-thumb" src="/images/admin/file-ex.PNG">
+                        <div class="report-attach-imgs off" id="reportImages"></div>
+                        <div class="post-attach-video off" id="reportAttachVideo">
+                            <div class="post-video-thumb" id="reportVideoThumb">
+                                <span class="post-video-icon">▶</span>
+                                <span class="post-video-label">동영상 재생</span>
+                            </div>
                         </div>
+                        <span class="modal-field-readonly off" id="reportAttachNone">첨부파일 없음</span>
                     </div>
                 </div>
                 <div class="modal-field-row">
@@ -1162,13 +1152,13 @@
     </div>
 </div>
 
-<!-- 이미지 뷰어 모달 -->
+        <!-- 이미지 뷰어 모달 -->
 <div class="modal-overlay off" id="modalImageViewer">
     <button class="img-viewer-close" id="imgViewerClose">✕</button>
     <img class="img-viewer-img" id="imgViewerImg" src="" alt="첨부 이미지"/>
 </div>
 
-<!-- 광고 영상 뷰어 모달 -->
+<!-- 영상 뷰어 모달 -->
 <div class="modal-overlay off" id="modalVideoViewer">
     <button class="img-viewer-close" id="videoViewerClose">✕</button>
     <video class="video-viewer-video" id="videoViewerVideo" controls>
@@ -1176,6 +1166,10 @@
     </video>
 </div>
 
-<script src="/js/admin/admin.js"></script>
+<script src="/js/admin/service.js"></script>
+<script src="/js/admin/layout.js"></script>
+<script src="/js/admin/event.js"></script>
 </body>
 </html>
+
+

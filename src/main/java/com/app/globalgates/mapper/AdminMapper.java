@@ -12,12 +12,14 @@ import java.util.List;
 @Mapper
 public interface AdminMapper {
     int selectAdminMemberTotal(@Param("keyword") String keyword,
-                               @Param("memberRole") String memberRole,
+                               @Param("subscriptionTier") String subscriptionTier,
+                               @Param("subscriptionStatus") String subscriptionStatus,
                                @Param("memberStatus") String memberStatus);
 
     List<AdminMemberListDTO> selectAdminMembers(@Param("criteria") Criteria criteria,
                                                 @Param("keyword") String keyword,
-                                                @Param("memberRole") String memberRole,
+                                                @Param("subscriptionTier") String subscriptionTier,
+                                                @Param("subscriptionStatus") String subscriptionStatus,
                                                 @Param("memberStatus") String memberStatus);
 
     int selectAdminPostTotal(@Param("keyword") String keyword,
@@ -39,4 +41,44 @@ public interface AdminMapper {
                                                 @Param("keyword") String keyword,
                                                 @Param("targetType") String targetType,
                                                 @Param("reportStatus") String reportStatus);
+
+    int updateMemberStatus(@Param("memberId") Long memberId,
+                           @Param("memberStatus") String memberStatus);
+
+    int updatePostStatus(@Param("postIds") List<Long> postIds,
+                         @Param("postStatus") String postStatus);
+
+    int updatePostContent(@Param("postId") Long postId,
+                          @Param("postContent") String postContent);
+
+    int updatePostCategory(@Param("postId") Long postId,
+                           @Param("categoryId") Long categoryId);
+
+    int clearEstimationProducts(@Param("postIds") List<Long> postIds);
+
+    int deletePostMentions(@Param("postIds") List<Long> postIds);
+
+    int deletePostReports(@Param("postIds") List<Long> postIds);
+
+    int deletePostBookmarks(@Param("postIds") List<Long> postIds);
+
+    int deletePostFiles(@Param("postIds") List<Long> postIds);
+
+    int deletePostLikes(@Param("postIds") List<Long> postIds);
+
+    int deletePostHashtags(@Param("postIds") List<Long> postIds);
+
+    int deletePostProducts(@Param("postIds") List<Long> postIds);
+
+    int deleteReplyPosts(@Param("postIds") List<Long> postIds);
+
+    int deletePosts(@Param("postIds") List<Long> postIds);
+
+    int updateReportStatus(@Param("reportIds") List<Long> reportIds,
+                           @Param("reportStatus") String reportStatus);
+
+    int updateReportedPostStatusByReportIds(@Param("reportIds") List<Long> reportIds,
+                                            @Param("postStatus") String postStatus);
+
+    int deleteReports(@Param("reportIds") List<Long> reportIds);
 }

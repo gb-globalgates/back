@@ -1,4 +1,4 @@
-window.onload = () => {
+﻿window.onload = () => {
     const tabButtons = Array.from(
         document.querySelectorAll("[data-inquiry-tab]"),
     );
@@ -21,7 +21,7 @@ window.onload = () => {
     let expertDashboard = null;
     let chartsLoaded = false;
 
-    // ===== 공통 유틸 =====
+    // 공통 유틸리티
     const getTextContent = (element) =>
         element?.textContent?.replace(/\s+/g, " ").trim() ?? "";
 
@@ -84,7 +84,7 @@ window.onload = () => {
         }
     };
 
-    // ===== 탭 표시 제어 =====
+    // 탭과 패널 표시 제어
     const ensureActivityPanelVisible = () => {
         panels.forEach((panel) => {
             panel.hidden = panel.dataset.inquiryPanel !== "activity";
@@ -94,7 +94,7 @@ window.onload = () => {
     const setActiveTabVisual = (tabName) => {
         tabButtons.forEach((tab) => {
             const isActive = tab.dataset.inquiryTab === tabName;
-            tab.classList.toggle("Inquiry-Tab--Active", isActive);
+    // 드롭다운 닫기 유틸리티
             tab.setAttribute("aria-selected", String(isActive));
         });
     };
@@ -108,7 +108,7 @@ window.onload = () => {
         }, PREVIEW_DURATION_MS);
     };
 
-    // ===== 열린 UI 닫기 헬퍼 =====
+    // ===== 공통 UI 유틸 =====
     const closeFilterMenu = () => {
         if (!filterTrigger || !filterMenu) {
             return;
@@ -174,9 +174,9 @@ window.onload = () => {
     initializePeriodChips();
     initializeFilterDropdown();
 
-    // ─────────────────────────────────────────────────────
-    // 차트 파트 *******************************************
-    // ─────────────────────────────────────────────────────
+    // =====================================================
+    // 차트 파트
+    // =====================================================
     google.charts.load("current", {
         packages: ["corechart", "geochart"],
         language: "ko",
@@ -189,7 +189,7 @@ window.onload = () => {
     /**
      * TODO: GET /api/expert/stats/profile-views?period={period}
      * @param {'7d'|'30d'|'6m'} period
-     * @returns {Array<[string, number]>}  [날짜/기간 라벨, 값]
+     * @returns {Array<[string, number]>} [날짜/기간 라벨, 값]
      */
 
     function fetchProfileViewData(period) {
@@ -217,7 +217,7 @@ window.onload = () => {
             });
         }
 
-        // 6m – 월별 집계
+        // 6개월 월별 집계
         return Array.from({length: 6}, (_, i) => {
             const d = new Date(now);
             d.setMonth(d.getMonth() - (5 - i));
@@ -269,7 +269,7 @@ window.onload = () => {
 
     /**
      * TODO: GET /api/expert/stats/connect-changes
-     * 팔로우(양수) / 언팔로우(음수) 주간 변동 데이터
+     * 팔로우(양수) / 언팔로우(음수) 주간 변화 데이터
      */
     function fetchConnectChangeData() {
         const labels = ["1월", "2월", "3월", "4월", "5월", "6월"];
@@ -289,7 +289,7 @@ window.onload = () => {
             ["카테고리", "건수"],
             ["전자/반도체", 148],
             ["화학/소재", 97],
-            ["식품/농산물", 83],
+            ["식품/특산물", 83],
             ["의류/섬유", 62],
             ["기계/설비", 55],
             ["기타", 43],
@@ -316,7 +316,7 @@ window.onload = () => {
         ];
     }
 
-    /** Google Charts 전반에 걸쳐 공유하는 기본 폰트/색 설정 */
+    /** Google Charts 전반에 걸쳐 공유하는 기본 차트 옵션 */
     function baseOptions() {
         return {
             fontName: "DM Sans",
@@ -347,12 +347,12 @@ window.onload = () => {
     }
 
     // =====================================================
-    // 4. 차트 렌더러
+    // 4. 차트 렌더링
     // =====================================================
 
-    // ── 2층: 선 그래프 ──────────────────────────────────
+    // 2층 왼쪽 라인 차트
 
-    /** 현재 활성 지표와 기간을 추적하는 상태 */
+    /** 현재 선택된 지표와 기간을 추적하는 상태 */
     const lineChartState = {
         metric: "profileViewCount", // 'profileViewCount' | 'inquiryRequestCount'
         period: "7d", // '7d' | '30d' | '6m'
@@ -360,7 +360,7 @@ window.onload = () => {
 
     let lineChartInstance = null;
 
-    // 선 그래프 재 랜더링
+    // 라인 차트 렌더링
     function drawLineChart() {
         const container = document.getElementById("chart-line");
         if (!container) return;
@@ -368,7 +368,7 @@ window.onload = () => {
         // 로딩 표시
         container.classList.add("is-loading");
 
-        // 지표에 맞는 데이터 페치
+        // 지표에 맞는 데이터 선택
         const rawRows =
             lineChartState.metric === "profileViewCount"
                 ? fetchProfileViewData(lineChartState.period)
@@ -418,12 +418,12 @@ window.onload = () => {
         lineChartInstance.draw(data, options);
     }
 
-    // ── 3층 왼쪽: 막대 그래프 ───────────────────────────
+    // 3층 왼쪽 막대 차트
 
     let barChartInstance = null;
 
     /**
-     * 커넥트 변동 추이 막대 그래프를 렌더링한다.
+     * 커넥트 변화 추이 막대 그래프를 렌더링한다.
      */
     function drawBarChart() {
         const container = document.getElementById("chart-bar");
@@ -435,8 +435,8 @@ window.onload = () => {
 
         const data = new google.visualization.DataTable();
         data.addColumn("string", "기간");
-        data.addColumn("number", "Apporve");
-        data.addColumn("number", "DIsapporve");
+        data.addColumn("number", "승인");
+        data.addColumn("number", "반려");
         data.addRows(rawRows);
 
         const options = {
@@ -473,7 +473,7 @@ window.onload = () => {
         barChartInstance.draw(data, options);
     }
 
-    // ── 3층 오른쪽: 도넛 그래프 ─────────────────────────
+    // 3층 오른쪽 도넛 차트
 
     let donutChartInstance = null;
 
@@ -536,12 +536,12 @@ window.onload = () => {
         donutChartInstance.draw(data, options);
     }
 
-    // ── 4층: 지오 차트 ──────────────────────────────────
+    // 4층 지오 차트
 
     let geoChartInstance = null;
 
     /**
-     * 거래된 사업자 나라 분포 지오 차트를 렌더링한다.
+     * 거래 국가 분포 지오 차트를 렌더링한다.
      */
     function drawGeoChart() {
         const container = document.getElementById("chart-geo");
@@ -612,11 +612,10 @@ window.onload = () => {
 
     // =====================================================
     // 7. UI 상호작용 초기화
-    //    [수정] window.addEventListener("DOMContentLoaded") 래퍼 제거
-    //           → window.onload 안에서 직접 실행되도록 변경
+    //    window.onload 안에서 직접 실행되도록 구성한다.
     // =====================================================
 
-    // ── 2층: 지표 드롭다운 ───────────────────────────
+    // 2층 지표 드롭다운 영역
     const dropbox = document.querySelector("[data-dropbox]");
     const dropTrigger = document.querySelector("[data-dropbox-trigger]");
     const dropMenu = document.querySelector("[data-dropbox-menu]");
@@ -643,23 +642,23 @@ window.onload = () => {
             const newMetric = option.dataset.metric;
             if (!newMetric) return;
 
-            // 선택 상태 업데이트
+    // 선택 상태 업데이트
             dropOptions.forEach((o) => {
                 const isSelected = o === option;
                 o.setAttribute("aria-selected", String(isSelected));
             });
 
-            // 라벨 업데이트
+    // 라벨 업데이트
             if (dropLabel) dropLabel.textContent = option.textContent.trim();
 
-            // 차트 상태 업데이트 후 재렌더
+    // 차트 상태 업데이트 및 리프레시
             lineChartState.metric = newMetric;
             closeDropbox();
             drawLineChart();
         });
     });
 
-    // ── 2층: 기간 필터 버튼 ──────────────────────────
+    // 2층 기간 필터 버튼
     const periodButtons = Array.from(
         document.querySelectorAll("[data-line-period]"),
     );
@@ -678,14 +677,14 @@ window.onload = () => {
         });
     });
 
-    // ── 전역 클릭: 드롭다운 닫기 ─────────────────────
+    // 문서 영역 클릭 시 드롭다운 닫기
     document.addEventListener("click", (e) => {
         if (dropbox && !dropbox.contains(e.target)) {
             closeDropbox();
         }
     });
 
-    // ── ESC 키: 드롭다운 닫기 ────────────────────────
+    // ESC 키로 드롭다운 닫기
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeDropbox();
     });
@@ -732,3 +731,4 @@ window.onload = () => {
 
     loadDashboard();
 };
+
