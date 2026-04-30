@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<<<<<<< HEAD
+    <title>Inquiry List / Global Gates</title>
+    <link rel="stylesheet" href="/css/common/mobile-nav.css" th:href="@{/css/common/mobile-nav.css}"/>
+=======
     <title>거래처 등록 목록</title>
+>>>>>>> 670560029fbdeabd32907cc35b824b2bcd3ba296
     <link rel="stylesheet" href="/css/Inquiry/Inquiry_list.css"/>
+    <script src="/js/common/mobile-nav.js" th:src="@{/js/common/mobile-nav.js}" defer></script>
     <script src="/js/Inquiry_list/event.js"></script>
     <script src="/js/Inquiry_list/service.js"></script>
     <script src="/js/Inquiry_list/layout.js"></script>
@@ -125,6 +131,11 @@
     </main>
 </div>
 
+<<<<<<< HEAD
+<!-- 모바일 nav + 더보기 아코디언 (공용 fragment) -->
+<div th:replace="~{common/mobile-nav :: mobileNav('more')}"></div>
+<div th:replace="~{common/mobile-nav :: mobileMoreSheet}"></div>
+=======
 <div class="bottombar-fixed">
     <div class="bottombar-slide">
         <div class="bottombar" data-testid="BottomBar">
@@ -203,6 +214,7 @@
         </div>
     </div>
 </div>
+>>>>>>> 670560029fbdeabd32907cc35b824b2bcd3ba296
 
 <div class="modal-overlay" id="disconnectModal">
     <div class="modal-dialog" role="alertdialog" aria-labelledby="modalTitle">
