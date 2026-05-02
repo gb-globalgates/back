@@ -57,6 +57,15 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
         return ResponseEntity.ok(posts);
     }
 
+    private String toPresigned(String s3Key) {
+        if (s3Key == null || s3Key.isBlank()) return null;
+        try {
+            return s3Service.getPresignedUrl(s3Key, Duration.ofMinutes(10));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
 //    뉴스 목록 조회
     @GetMapping("news")
     public ResponseEntity<?> getNews(@AuthenticationPrincipal CustomUserDetails userDetails) {
