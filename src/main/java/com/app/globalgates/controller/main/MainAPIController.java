@@ -63,15 +63,9 @@ public class MainAPIController implements MainAPIControllerDocs {
         log.info("게시글 목록 조회 — page: {}, memberId: {}", page, memberId);
         PostWithPagingDTO result = postService.getList(page, memberId);
         result.getPosts().forEach(post -> {
-                post.getPostFiles().forEach(pf -> {
-                    try {
-                        pf.setFilePath(s3Service.getPresignedUrl(pf.getFilePath(), Duration.ofMinutes(10)));
-                    } catch (IOException e) {
-                        throw new RuntimeException("Presigned URL 생성 실패", e);
-                    }
-                });
-                convertProfileUrl(post);
-                convertProductImageUrl(post);
+            convertPostFilesUrl(post);
+            convertProfileUrl(post);
+            convertProductImageUrl(post);
         });
         return result;
     }
