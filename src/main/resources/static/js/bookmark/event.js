@@ -1,6 +1,13 @@
 (function () {
     "use strict";
 
+    // 사이드바 게시하기 모달 활성화. memberId는 HTML inline top-level const.
+    postModalApi.bootstrap({
+        services: service,
+        layout: layout,
+        getMemberId: () => memberId,
+    });
+
     const headerTitle = document.getElementById("headerTitle");
     const defaultHeaderTitle =
         headerTitle?.dataset.defaultTitle || "모든 북마크";
